@@ -1014,7 +1014,8 @@ loop:
 					err('i');
 				}
 				if (!iflvl[tlevel]) {
-					lmode = ILIST;
+					lmode = ELIST;
+					eqt_area = NULL;
 					laddr = n;
 				} else {
 					lmode = SLIST;
@@ -1045,7 +1046,8 @@ loop:
 						case O_IFTF:	flevel = 0;	break;
 						}
 					}
-					lmode = ILIST;
+					lmode = ELIST;
+					eqt_area = NULL;
 					laddr = flevel ? 0 : 1;
 				} else {
 					lmode = SLIST;
@@ -1221,7 +1223,8 @@ loop:
 					ifcnd[tlevel] = 1;
 				}
 				if (!iflvl[tlevel]) {
-					lmode = ILIST;
+					lmode = ELIST;
+					eqt_area = NULL;
 					laddr = ifcnd[tlevel];
 					return;
 				}

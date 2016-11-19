@@ -1,7 +1,7 @@
 /* r65mch.c */
 
 /*
- *  Copyright (C) 1995-2014  Alan R. Baldwin
+ *  Copyright (C) 1995-2015  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -455,24 +455,14 @@ struct mne *mp;
 			outab(op+0x0C);
 			outrw(&e1, 0);
 			break;
+		case S_IMMED:
+			outab(op);
+			outrb(&e1, 0);
+			break;
 		default:
-			if (r65c02) {	/* Check 65C02 Extensions */
-				switch(t1) {
-				case S_IMMED:
-					outab(op);
-					outrb(&e1, 0);
-					break;
-				default:
-					outab(op);
-					outab(0);
-					aerr();
-					break;
-				}
-			} else {
-				outab(op);
-				outab(0);
-				aerr();
-			}
+			outab(op);
+			outab(0);
+			aerr();
 			break;
 		}
 		break;

@@ -277,9 +277,7 @@ cmp [*extdir]	; D2*00
 cmp [extext]	; D2*00
 .endif
 
-.if	r65c02
 cpx #12		; E0 12
-.endif
 		; ---
 cpx 12		; E4 12
 cpx *dir	; E4 83
@@ -289,9 +287,7 @@ cpx 1234	; EC 34 12
 cpx ext		; EC 22 81
 cpx extext	; ECr00s00
 
-.if	r65c02
 cpy #12		; C0 12
-.endif
 		; ---
 cpy 12		; C4 12
 cpy *dir	; C4 83

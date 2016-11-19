@@ -50,8 +50,8 @@
  * Local Definitions
  */
 
-#define	VERSION	"V05.10"
-#define	COPYRIGHT "2014"
+#define	VERSION	"V05.11"
+#define	COPYRIGHT "2015"
 
 /*
  * To include NoICE Debugging set non-zero
@@ -151,11 +151,11 @@
 #define	LFTERM	'('		/* Left expression delimeter */
 #define	RTTERM	')'		/* Right expression delimeter */
 
-#define NCPS	80		/* Characters per symbol */
+#define NCPS	256		/* Characters per symbol */
 #define	HUGE	1000		/* A huge number */
 #define NERR	2		/* Errors per line */
-#define NINPUT	128		/* Input buffer size */
-#define NCODE	128		/* Listing code buffer size */
+#define NINPUT	380		/* Input buffer size */
+#define NCODE	380		/* Listing code buffer size */
 #define NTITL	80		/* Title buffer size */
 #define	NSBTL	80		/* SubTitle buffer size */
 #define	NHASH	(1 << 6)	/* Buckets in hash table */
@@ -172,8 +172,7 @@
 #define ALIST	2		/* Address only */
 #define	BLIST	3		/* Address only with allocation */
 #define CLIST	4		/* Code */
-#define	ELIST	5		/* Equate only */
-#define	ILIST	6		/* IF conditional evaluation */
+#define	ELIST	5		/* Equate or IF conditional evaluation */
 
 #define	HLR_NLST	0x0080	/* For HLR file only */
 

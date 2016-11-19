@@ -39,8 +39,8 @@
  * Local Definitions
  */
 
-#define	VERSION "V05.10"
-#define	COPYRIGHT "2014"
+#define	VERSION "V05.11"
+#define	COPYRIGHT "2015"
 
 /*
  * To include NoICE Debugging set non-zero
