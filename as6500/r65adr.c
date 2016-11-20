@@ -1,7 +1,7 @@
 /* r65adr.c */
 
 /*
- *  Copyright (C) 1995-2014  Alan R. Baldwin
+ *  Copyright (C) 1995-2016  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
  * Finland
  * Internet: Marko dot Makela at Helsinki dot Fi
  * EARN/BitNet: msmakela at finuh
+ *
+ * Hu6280 support added by John Brandwood
  */
 
 #include "asxxxx.h"
@@ -105,7 +107,7 @@ struct expr *esp;
 				case S_X:
 					if ((!esp->e_flag)
 					    && (esp->e_base.e_ap==NULL)
-						&& !(esp->e_addr & ~0xFF)) {
+					    && ((esp->e_addr & ~0xFF) == zp_addr)) {
 						esp->e_mode = S_DINDX;
 					} else {
 						esp->e_mode = S_INDX;
@@ -114,7 +116,7 @@ struct expr *esp;
 				case S_Y:
 					if ((!esp->e_flag)
 					    && (esp->e_base.e_ap==NULL)
-						&& !(esp->e_addr & ~0xFF)) {
+					    && ((esp->e_addr & ~0xFF) == zp_addr)) {
 						esp->e_mode = S_DINDY;
 					} else {
 						esp->e_mode = S_INDY;
@@ -126,8 +128,8 @@ struct expr *esp;
 				}
 			    } else {
 				if ((!esp->e_flag)
-					&& (esp->e_base.e_ap==NULL)
-					&& !(esp->e_addr & ~0xFF)) {
+				    && (esp->e_base.e_ap==NULL)
+				    && ((esp->e_addr & ~0xFF) == zp_addr)) {
 					esp->e_mode = S_DIR;
 				} else {
 					esp->e_mode = S_EXT;

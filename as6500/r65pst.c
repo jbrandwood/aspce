@@ -1,7 +1,7 @@
 /* r65pst.c */
 
 /*
- *  Copyright (C) 1995-2014  Alan R. Baldwin
+ *  Copyright (C) 1995-2016  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
  * Finland
  * Internet: Marko dot Makela at Helsinki dot Fi
  * EARN/BitNet: msmakela at finuh
+ *
+ * Hu6280 support added by John Brandwood
  */
 
 #include "asxxxx.h"
@@ -114,6 +116,7 @@ struct	mne	mne[] = {
     {	NULL,	".r65f11",	S_R65F11,	0,	0	},
     {	NULL,	".r65c00",	S_R65C00,	0,	0	},
     {	NULL,	".r65c02",	S_R65C02,	0,	0	},
+    {	NULL,	".hu6280",	S_HU6280,	0,	0	},
 
 	/* system */
 
@@ -361,5 +364,52 @@ struct	mne	mne[] = {
     {	NULL,	"stz",		S_STZ,		0,	0x60	},
 
     {	NULL,	"trb",		S_TB,		0,	0x10	},
-    {	NULL,	"tsb",		S_TB,		S_EOL,	0x00	}
+    {	NULL,	"tsb",		S_TB,		0,	0x00	},
+
+	/* Additional Hu6280 series Instructions */
+
+    {	NULL,	"sxy",		S_INH4,		0,	0x02	},
+    {	NULL,	"sax",		S_INH4,		0,	0x22	},
+    {	NULL,	"say",		S_INH4,		0,	0x42	},
+    {	NULL,	"cla",		S_INH4,		0,	0x62	},
+    {	NULL,	"clx",		S_INH4,		0,	0x82	},
+    {	NULL,	"cly",		S_INH4,		0,	0xC2	},
+    {	NULL,	"csl",		S_INH4,		0,	0x54	},
+    {	NULL,	"csh",		S_INH4,		0,	0xD4	},
+    {	NULL,	"set",		S_INH4,		0,	0xF4	},
+
+    {	NULL,	"bsr",		S_BRA3,		0,	0x44	},
+
+    {	NULL,	"st0",		S_IMMED,	0,	0x03	},
+    {	NULL,	"st1",		S_IMMED,	0,	0x13	},
+    {	NULL,	"st2",		S_IMMED,	0,	0x23	},
+
+    {	NULL,	"tma",		S_BNKIMM,	0,	0x43	},
+    {	NULL,	"tam",		S_BNKIMM,	0,	0x53	},
+
+    {	NULL,	"tma0",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma1",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma2",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma3",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma4",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma5",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma6",		S_BNKINH,	0,	0x43	},
+    {	NULL,	"tma7",		S_BNKINH,	0,	0x43	},
+
+    {	NULL,	"tam0",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam1",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam2",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam3",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam4",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam5",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam6",		S_BNKINH,	0,	0x53	},
+    {	NULL,	"tam7",		S_BNKINH,	0,	0x53	},
+
+    {	NULL,	"tii",		S_TXX,		0,	0x73	},
+    {	NULL,	"tdd",		S_TXX,		0,	0xC3	},
+    {	NULL,	"tin",		S_TXX,		0,	0xD3	},
+    {	NULL,	"tia",		S_TXX,		0,	0xE3	},
+    {	NULL,	"tai",		S_TXX,		0,	0xF3	},
+
+    {	NULL,	"tst",		S_TST,		S_EOL,	0x83	}
 };

@@ -1,7 +1,7 @@
 /* r65mch.c */
 
 /*
- *  Copyright (C) 1995-2015  Alan R. Baldwin
+ *  Copyright (C) 1995-2016  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,18 +31,28 @@
  * Finland
  * Internet: Marko dot Makela at Helsinki dot Fi
  * EARN/BitNet: msmakela at finuh
+ *
+ * Hu6280 support added by John Brandwood
  */
 
 #include "asxxxx.h"
 #include "r6500.h"
 
-char *cpu  = "Rockwell 6502/6510/65C02";
+char *cpu  = "Rockwell 6502/6510/65C02 & Hu6280";
 char *dsft = "asm";
 
 int r6500;
 int r65f11;
 int r65c00;
 int r65c02;
+int hu6280;
+
+/*
+ * Location of direct page addressing (it isn't always at $00xx)
+ */
+
+int    zp_mode;
+a_uint zp_addr;
 
 /*
  * Opcode Cycle Definitions
@@ -54,6 +64,7 @@ int r65c02;
 #define	OPCY_65F11	((char) (0xFC))
 #define	OPCY_65C00	((char) (0xFB))
 #define	OPCY_65C02	((char) (0xFA))
+#define	OPCY_HU6280	((char) (0xF9))
 
 /*	OPCY_NONE	((char) (0x80))	*/
 /*	OPCY_MASK	((char) (0x7F))	*/
@@ -148,6 +159,33 @@ static char c02pg1[256] = {
 /*E0*/   2, 7,UN,UN, 3, 4, 5, 5, 2, 3, 2,UN, 4, 5, 6, 7,
 /*F0*/   4, 7, 6,UN,UN, 5, 6, 5, 2, 6, 4,UN,UN, 6, 7, 7
 };
+
+/* N.B. The block transfer instructions take 17-cycles plus 6-per-byte. */
+
+#define TX UN /* Block Transfer */
+
+static char hu6280pg1[256] = {
+/*--*--* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
+/*--*--* -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - */
+/*00*/   8, 7, 3, 4, 6, 4, 6, 7, 3, 2, 2,UN, 7, 5, 7, 6,
+/*10*/   4, 7, 7, 4, 6, 4, 6, 7, 2, 5, 2,UN, 7, 5, 7, 6,
+/*20*/   7, 7, 3, 4, 4, 4, 6, 7, 4, 2, 2,UN, 5, 5, 7, 6,
+/*30*/   4, 7, 7,UN, 4, 7, 7, 7, 2, 5, 2,UN, 5, 5, 7, 6,
+/*40*/   7, 7, 3, 4, 8, 4, 6, 7, 3, 2, 2,UN, 4, 5, 7, 6,
+/*50*/   4, 7, 7, 5, 3, 4, 6, 7, 2, 5, 3,UN,UN, 5, 7, 6,
+/*60*/   7, 7, 2,UN, 4, 4, 6, 7, 4, 2, 2,UN, 7, 5, 7, 6,
+/*70*/   4, 7, 7,TX, 4, 4, 6, 7, 2, 5, 4,UN, 7, 5, 7, 6,
+/*80*/   4, 7, 2, 7, 4, 4, 4, 7, 2, 2, 2,UN, 5, 5, 5, 6,
+/*90*/   4, 7, 7, 8, 4, 4, 4, 7, 2, 5, 2,UN, 5, 5, 5, 6,
+/*A0*/   2, 7, 2, 7, 4, 4, 4, 7, 2, 2, 2,UN, 5, 5, 5, 6,
+/*B0*/   4, 7, 7, 8, 4, 7, 4, 7, 2, 5, 2,UN, 5, 5, 5, 6,
+/*C0*/   2, 7, 2,TX, 4, 4, 6, 7, 2, 2, 2,UN, 5, 5, 7, 6,
+/*D0*/   4, 7, 7,TX, 3, 4, 6, 7, 2, 5, 3,UN,UN, 5, 7, 6,
+/*E0*/   2, 7,UN,TX, 4, 4, 6, 7, 2, 2, 2,UN, 5, 5, 7, 6,
+/*F0*/   4, 7, 7,TX, 2, 4, 6, 7, 2, 5, 4,UN,UN, 5, 7, 6
+};
+
+#undef TX
 				         
 /*
  * Process a machine op.
@@ -157,7 +195,7 @@ machine(mp)
 struct mne *mp;
 {
 	int op, t1;
-	struct expr e1,e2;
+	struct expr e1,e2,e3;
 	struct area *espa;
 	char id[NCPS];
 	int c, v1, v2;
@@ -173,7 +211,7 @@ struct mne *mp;
 		if (more()) {
 			expr(&e1, 0);
 			if (e1.e_flag == 0 && e1.e_base.e_ap == NULL) {
-				if (e1.e_addr) {
+				if ((e1.e_addr & ~0xFF) != zp_addr) {
 					err('b');
 				}
 			}
@@ -200,6 +238,9 @@ struct mne *mp;
 		r65f11 = 0;
 		r65c00 = 0;
 		r65c02 = 0;
+		hu6280 = 0;
+		zp_mode = R_PAG0;
+		zp_addr = 0x0000;
 		break;
 
 	case S_R65F11:
@@ -207,6 +248,9 @@ struct mne *mp;
 		r65f11 = 1;
 		r65c00 = 0;
 		r65c02 = 0;
+		hu6280 = 0;
+		zp_mode = R_PAG0;
+		zp_addr = 0x0000;
 		break;
 
 	case S_R65C00:
@@ -214,6 +258,9 @@ struct mne *mp;
 		r65f11 = 1;
 		r65c00 = 1;
 		r65c02 = 0;
+		hu6280 = 0;
+		zp_mode = R_PAG0;
+		zp_addr = 0x0000;
 		break;
 
 	case S_R65C02:
@@ -221,6 +268,27 @@ struct mne *mp;
 		r65f11 = 1;
 		r65c00 = 1;
 		r65c02 = 1;
+		hu6280 = 0;
+		zp_mode = R_PAG0;
+		zp_addr = 0x0000;
+		break;
+
+	case S_HU6280:
+		opcycles = OPCY_HU6280;
+		r65f11 = 1;
+		r65c00 = 1;
+		r65c02 = 1;
+		hu6280 = 1;
+		zp_mode = R_PAGN;
+		zp_addr = 0x2000;
+		break;
+
+	case S_INH4:
+		if (!hu6280) {
+			err('o');
+			break;
+		}
+		outab(op);
 		break;
 
 	case S_INH3:
@@ -238,6 +306,12 @@ struct mne *mp;
 	case S_INH1:
 		outab(op);
 		break;
+
+	case S_BRA3:
+		if (!hu6280) {
+			err('o');
+			break;
+		}
 
 	case S_BRA2:
 		if (!r65c00) {
@@ -307,11 +381,11 @@ struct mne *mp;
 		switch (t1) {
 		case S_IPREX:
 			outab(op + 0x01);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_DIR:
 			outab(op + 0x05);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_IMMED:
 			outab(op + 0x09);
@@ -325,11 +399,11 @@ struct mne *mp;
 			break;
 		case S_IPSTY:
 			outab(op + 0x11);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_DINDX:
 			outab(op + 0x15);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_DINDY:
 		case S_INDY:
@@ -345,7 +419,7 @@ struct mne *mp;
 				switch(t1) {
 				case S_IND:
 					outab(op + 0x12);
-					outrb(&e1, R_PAG0);
+					outrb(&e1, zp_mode);
 					break;
 				default:
 					outab(op + 0x05);
@@ -367,7 +441,7 @@ struct mne *mp;
 		switch (t1) {
 		case S_DIR:
 			outab(op + 0x06);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op + 0x0E);
@@ -389,7 +463,7 @@ struct mne *mp;
 			break;
 		case S_DINDX:
 			outab(op + 0x16);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_INDX:
 			outab(op + 0x1E);
@@ -408,7 +482,7 @@ struct mne *mp;
 		switch (t1) {
 		case S_DIR:
 			outab(op + 0x04);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op + 0x0C);
@@ -419,7 +493,7 @@ struct mne *mp;
 				switch(t1) {
 				case S_DINDX:
 					outab(op + 0x14);
-					outrb(&e1, R_PAG0);
+					outrb(&e1, zp_mode);
 					break;
 				case S_INDX:
 					outab(op + 0x1C);
@@ -449,7 +523,7 @@ struct mne *mp;
 		switch (t1) {
 		case S_DIR:
 			outab(op + 0x04);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op+0x0C);
@@ -478,7 +552,7 @@ struct mne *mp;
 			break;
 		case S_DIR:
 			outab(op + 0x06);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op + 0x0E);
@@ -486,11 +560,13 @@ struct mne *mp;
 			break;
 		case S_DINDY:
 			outab(op + 0x16);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_INDY:
 			outab(op + 0x1E);
 			outrw(&e1, 0);
+			if (op == 0x80)
+				aerr();
 			break;
 		default:
 			outab(op + 0x06);
@@ -511,7 +587,7 @@ struct mne *mp;
 			break;
 		case S_DIR:
 			outab(op + 0x04);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op + 0x0C);
@@ -519,11 +595,13 @@ struct mne *mp;
 			break;
 		case S_DINDX:
 			outab(op + 0x14);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_INDX:
 			outab(op + 0x1C);
 			outrw(&e1, 0);
+			if (op == 0x80)
+				aerr();
 			break;
 		default:
 			outab(op + 0x04);
@@ -544,7 +622,7 @@ struct mne *mp;
 		comma(1);
 		expr(&e2, 0);
 		outab(op);
-		outrb(&e1, R_PAG0);
+		outrb(&e1, zp_mode);
 		if (mchpcr(&e2)) {
 			v2 = (int) (e2.e_addr - dot.s_addr - 1);
 			if ((v2 < -128) || (v2 > 127))
@@ -564,7 +642,7 @@ struct mne *mp;
 		}
 		t1 = addr(&e1);
 		outab(op);
-		outrb(&e1, R_PAG0);
+		outrb(&e1, zp_mode);
 		if (t1 != S_DIR && t1 != S_EXT)
 			aerr();
 		break;
@@ -577,11 +655,11 @@ struct mne *mp;
 		switch (addr(&e1)) {
 		case S_DIR:
 			outab(op + 0x04);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_DINDX:
 			outab(op + 0x14);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op + 0x3C);
@@ -607,7 +685,7 @@ struct mne *mp;
 		switch (addr(&e1)) {
 		case S_DIR:
 			outab(op + 0x04);
-			outrb(&e1, R_PAG0);
+			outrb(&e1, zp_mode);
 			break;
 		case S_EXT:
 			outab(op+0x0C);
@@ -615,6 +693,103 @@ struct mne *mp;
 			break;
 		default:
 			outab(op);
+			outab(0);
+			aerr();
+			break;
+		}
+		break;
+
+	case S_BNKIMM:
+		if (!hu6280) {
+			err('o');
+			break;
+		}
+		switch (addr(&e1)) {
+		case S_IMMED:
+			outab(op);
+			outrb(&e1, 0);
+			break;
+		default:
+			outab(op);
+			outab(0);
+			aerr();
+			break;
+		}
+		break;
+
+	case S_BNKINH:
+		if (!hu6280) {
+			err('o');
+			break;
+		}
+		outab(op);
+		outab(1 << (mp->m_id[3] - '0'));
+		break;
+
+	case S_TXX:
+		if (!hu6280) {
+			err('o');
+			break;
+		}
+		clrexpr(&e3);
+		expr(&e1, 0);
+		if (e1.e_mode != 0 && comma(1)) {
+			expr(&e2, 0);
+			if (e2.e_mode != 0 && comma(1)) {
+				expr(&e3, 0);
+			}
+		}
+		if (e1.e_mode == 0 || e2.e_mode == 0 || e3.e_mode == 0) {
+			outab(op);
+			outaw(0);
+			outaw(0);
+			outaw(0);
+			qerr();
+			break;
+		}
+		outab(op);
+		outrw(&e1, 0);
+		outrw(&e2, 0);
+		outrw(&e3, 0);
+		break;
+
+	case S_TST:
+		if (!hu6280) {
+			err('o');
+			break;
+		}
+		if (addr(&e1) != S_IMMED) {
+			outab(0x83);
+			outab(0);
+			outab(0);
+			aerr();
+			break;
+		}
+		comma(1);
+		switch (addr(&e2)) {
+		case S_DIR:
+			outab(0x83);
+			outrb(&e1, R_USGN);
+			outrb(&e2, zp_mode);
+			break;
+		case S_DINDX:
+			outab(0xA3);
+			outrb(&e1, R_USGN);
+			outrb(&e2, zp_mode);
+			break;
+		case S_EXT:
+			outab(0x93);
+			outrb(&e1, R_USGN);
+			outrw(&e2, 0);
+			break;
+		case S_INDX:
+			outab(0xB3);
+			outrb(&e1, R_USGN);
+			outrw(&e2, 0);
+			break;
+		default:
+			outab(0x83);
+			outab(0);
 			outab(0);
 			aerr();
 			break;
@@ -630,6 +805,9 @@ struct mne *mp;
 		/*
 		 * Donot Change Selection Order
 		 */
+		if (hu6280) {
+			opcycles = hu6280pg1[cb[0] & 0xFF];
+		} else
 		if (r65c02) {
 			opcycles = c02pg1[cb[0] & 0xFF];
 		} else
@@ -685,4 +863,7 @@ minit()
 	r65f11 = 0;
 	r65c00 = 0;
 	r65c02 = 0;
+	hu6280 = 0;
+	zp_mode = R_PAG0;
+	zp_addr = 0x0000;
 }

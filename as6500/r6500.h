@@ -1,7 +1,7 @@
 /* r6500.h */
 
 /*
- *  Copyright (C) 1995-2014  Alan R. Baldwin
+ *  Copyright (C) 1995-2016  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
  * Finland
  * Internet: Marko dot Makela at Helsinki dot Fi
  * EARN/BitNet: msmakela at finuh
+ *
+ * Hu6280 support added by John Brandwood
  */
 
 /*)BUILD
@@ -74,6 +76,7 @@ struct adsym
 #define	S_R65F11	32
 #define S_R65C00	33
 #define	S_R65C02	34
+#define	S_HU6280	35
 
 /*
  * Addressing types
@@ -113,15 +116,32 @@ struct adsym
 /*
  * 65C00/21 and 6529 Extensions
  */
-#define	S_BRA2	72
+#define S_BRA2	72
 #define S_INH2	73
-#define	S_INH3	74
+#define S_INH3	74
 
 /*
  * 65C02, 65C102, and 65C112 Extensions
  */
 #define S_STZ	75
-#define	S_TB	76
+#define S_TB	76
+
+/*
+ * Hu6280 Extensions
+ */
+#define S_INH4	77
+#define S_BRA3	78
+#define S_BNKIMM	79
+#define S_BNKINH	80
+#define S_TXX	81
+#define S_TST	82
+
+/*
+ * Location of zero page addressing (it isn't always at $00xx)
+ */
+
+extern	int		zp_mode;
+extern	a_uint	zp_addr;
 
 /*
  * machine dependent functions
