@@ -1,34 +1,35 @@
-ASxxxx and ASlink V5.10 October 2014
+ASxxxx and ASlink V5.31 March 2019
 
    The  ASxxxx  assemblers are a series of microprocessor assem-
 blers written in the C programming  language.   This  collection
 contains  cross  assemblers  for the 1802, S2650, SC/MP, MPS430,
 6100, 61860,  6500,  6800(6802/6808),  6801(6803/HD6303),  6804,
-6805, 68HC(S)08, 6809,  68HC11, 68HC(S)12, 68HC16,  740, 78K/0S,
-8048(8041/8022/8021)  8051,  8085(8080),  DS8xCxxx,  AVR,  EZ80,
-F2MC8L/FX, F8/3870,GameBoy(Z80), H8/3xx, Cypress PSoC(M8C), PIC,
-Rabbit 2000/3000, asst6,  asst7,  asst8,  Z8,  and  Z80(HD64180)
-series  microprocessors.   The  companion  program  ASLINK is  a
-relocating linker supporting all the cross  assemblers.   ASLINK
-also  supports  object   files  created  with  V4.xx  and  V3.xx
-assemblers.  The assemblers and linker have  been  tested  using
-Linux  and  DJGPP,  Cygwin,  Symantec C/C++ V7.2, Turbo C++ 3.0,
-Open Watcom V1.9, VC6,  Visual Studio 2005,  Visual Studio 2010,
-and Visual Studio 2013.  Complete source code and  documentation
-for  the   assemblers  and   linker   is   included   with   the
-distribution.  Additionally, test code  for  each assembler  and
-several microprocessor monitors (ASSIST05  for the  6805, MONDEB
-and  ASSIST09  for the 6809, and  BUFFALO 2.5  for the 6811) are
-included  as  working examples  of use of these assemblers.  
+6805,  68HC(S)08,  6809,  68HC11, 68HC(S)12, 68HC16, 740, 78K/0,
+78K/0S,  8008,  8008S,  8048(8041/8022/8021)  8051,  8085(8080),
+8X300(8X305),   DS8XCXXX,   AVR,   EZ80,   F2MC8L/FX,   F8/3870,
+GameBoy(Z80), H8/3xx, Cypress PSoC(M8C), PIC, Rabbit  2000/3000,
+ST6,  ST7,  ST8,  Z8, Z80(HD64180), and Z280 series microproces-
+sors.   The  companion  program  ASLINK is  a  relocating linker
+supporting  all the cross  assemblers.   ASLINK  also   supports
+object   files   created   with   V4.xx  and   V3.xx assemblers.
+The assemblers and linker have been tested  using  Linux, DJGPP,
+Cygwin,  Symantec C/C++ V7.2,  Turbo C++ 3.0,  Open Watcom V1.9,
+VC6, Visual Studio 2005, 2010, 2013 and 2015.  Complete   source
+code and  documentation for  the   assemblers  and   linker   is
+included   with  the distribution.  Additionally, test code  for
+each assembler and several microprocessor monitors (ASSIST05 for
+the  6805,  MONDEB and  ASSIST09  for the 6809, and  BUFFALO 2.5
+for the 6811)  are  included  as  working  examples  of  use  of
+these assemblers.  
 
-asxv5p10.zip	ASxxxx and ASlink V5.10 Zipped
+asxv5p30.zip	ASxxxx and ASlink V5.31 Zipped
 
 	MS-DOS:
-	Windows:	unzip asxv5p10.zip
-			pkunzip -d asxv5p10.zip
+	Windows:	unzip asxv5p31.zip
+			pkunzip -d asxv5p31.zip
 			unzips and restores directory structure
 
-	Linux:		unzip -L -a asxv5p10.zip
+	Linux:		unzip -L -a asxv5p31.zip
 			unzips to lower-case names and converts ascii
 			files to \n from \r\n form.
 
@@ -53,6 +54,8 @@ Makefiles or Build command files are in directories:
 
 	VS13:		\asxv5pxx\asxmak\vs13\build\
 
+	VS15:		\asxv5pxx\asxmak\vs15\build\
+
 	Watcom:		\asxv5pxx\asxmak\watcom\build\
 
 
@@ -76,11 +79,16 @@ The Make or Build Exectutable directories are:
 
 	VS13:		\asxv5pxx\asxmak\vs13\exe\
 
+	VS15:		\asxv5pxx\asxmak\vs15\exe\
+
 	Watcom:		\asxv5pxx\asxmak\watcom\exe\
 
 
  Documentation in pdf form is
  	\asxv5pxx\asxhtml\asmlnk.pdf
+
+ Documentation in rtf form is
+ 	\asxv5pxx\asxhtml\asmlnk.rtf
 
  Documentation in plain text form is
  	\asxv5pxx\asxhtml\asmlnk.txt
@@ -90,7 +98,7 @@ The Make or Build Exectutable directories are:
 
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2019  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

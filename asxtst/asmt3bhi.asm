@@ -81,6 +81,7 @@ byte3:	.3byte	.+2			;R00s00r9A
 	.page
 	.sbttl	Boundary Directives
 
+	.area	bndry_1	(ABS,OVR,DSEG)
 	.org	0
 bndry_1:
 
@@ -105,6 +106,7 @@ bndry_1:
 	.page
 	.sbttl	Power of 2 Boundary Modes
 
+	.area	bndry_2	(ABS,OVR,DSEG)
 	.org	0
 
 	.even			; Address == 0
@@ -118,7 +120,6 @@ bndry_1:
 	.bndry	256		; Address == 0
 	.bndry	512		; Address == 0
 	.bndry	1024		; Address == 0
-
 
 	.org	0
 bndry_2:
@@ -170,6 +171,7 @@ bndry_2:
 
 	.page
 
+	.area	bndry_3	(ABS,OVR,DSEG)
 	.org	1
 
 	.even			; Address == 2
@@ -235,6 +237,7 @@ bndry_3:
 	.page
 	.sbttl	Non Power of 2 Boundary Modes
 
+	.area	bndry_4	(ABS,OVR,DSEG)
 	.org	0
 
 	.bndry	1		; Address == 0
@@ -242,12 +245,6 @@ bndry_3:
 	.bndry	7		; Address == 0
 	.bndry	15		; Address == 0
 	.bndry	31		; Address == 0
-	.bndry	63		; Address == 0
-	.bndry	127		; Address == 0
-	.bndry	255		; Address == 0
-	.bndry	511		; Address == 0
-	.bndry	1023		; Address == 0
-
 
 	.org	0
 bndry_4:
@@ -272,29 +269,10 @@ bndry_4:
 	.bndry	31		; Address == 0
 5$:	.word	5$ - bndry_4	; 00 00
 
-	.org	0
-	.bndry	63		; Address == 0
-6$:	.word	6$ - bndry_4	; 00 00
-
-	.org	0
-	.bndry	127		; Address == 0
-7$:	.word	7$ - bndry_4	; 00 00
-
-	.org	0
-	.bndry	255		; Address == 0
-8$:	.word	8$ - bndry_4	; 00 00
-
-	.org	0
-	.bndry	511		; Address == 0
-9$:	.word	9$ - bndry_4	; 00 00
-
-	.org	0
-	.bndry	1023		; Address == 0
-10$:	.word	10$ - bndry_4	; 00 00
-
 
 	.page
 
+	.area	bndry_5	(ABS,OVR,DSEG)
 	.org	1
 
 	.bndry	3		; Address == 3
@@ -302,11 +280,6 @@ bndry_4:
 	.bndry	9		; Address == 9
 	.bndry	17		; Address == 17
 	.bndry	33		; Address == 33
-	.bndry	65		; Address == 65
-	.bndry	129		; Address == 129
-	.bndry	257		; Address == 257
-	.bndry	513		; Address == 513
-	.bndry	1025		; Address == 1025
 
 	.org	0
 bndry_5:
@@ -331,29 +304,10 @@ bndry_5:
 	.bndry	33		; Address == 33
 5$:	.word	5$ - bndry_5	; 00 21
 
-	.org	1
-	.bndry	65		; Address == 65
-6$:	.word	6$ - bndry_5	; 00 41
-
-	.org	1
-	.bndry	129		; Address == 129
-7$:	.word	7$ - bndry_5	; 00 81
-
-	.org	1
-	.bndry	257		; Address == 257
-8$:	.word	8$ - bndry_5	; 01 01
-
-	.org	1
-	.bndry	513		; Address == 513
-9$:	.word	9$ - bndry_5	; 02 01
-
-	.org	1
-	.bndry	1025		; Address == 1025
-10$:	.word	10$ - bndry_5	; 04 01
-
 
 	.page
 
+	.area	bndry_6	(ABS,OVR,DSEG)
 	.org	47
 
 	.bndry	3		; Address == 48
@@ -366,7 +320,6 @@ bndry_5:
 	.bndry	384		; Address == 384
 	.bndry	768		; Address == 768
 	.bndry	1536		; Address == 1536
-
 
 	.org	0
 bndry_6:
@@ -414,6 +367,8 @@ bndry_6:
 
 	.page
 	.sbttl	String Directives
+
+	.area	_DATA			; Data Area
 
 	.ascii	"abcde"			; 61 62 63 64 65
 	.asciz	"abcde"			; 61 62 63 64 65 00

@@ -344,6 +344,8 @@ struct	mne	mne[] = {
     {	NULL,	"jp",		S_CLJP,		0,	0x0C	},
     {	NULL,	"jpf",		S_CLJPF,	0,	0xAC	},
 
+    {	NULL,	"int",		S_INT,		0,	0x82	},
+
     {	NULL,	"ccf",		S_INH,	   	0,	0x8C	},
     {	NULL,	"halt",		S_INH,	   	0,	0x8E	},
     {	NULL,	"iret",		S_INH,		0,	0x80	},

@@ -1,7 +1,7 @@
 /* lkout.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2017  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -336,11 +336,16 @@ int i;
 			chksum =  0x00;
 			chksum += lo_addr;
 			chksum += lo_addr >> 8;
-			chksum += 0x03;
+			if (o1flag != 0) {
+				j = 0x01;
+			} else {
+				j = 0x03;
+			}
+			chksum += j;
 #ifdef	LONGINT
-			fprintf(ofp, ":00%04lX03%02lX\n", lo_addr, (~chksum + 1) & 0x00ff);
+			fprintf(ofp, ":00%04lX%02lX%02lX\n", lo_addr, j, (~chksum + 1) & 0x00ff);
 #else
-			fprintf(ofp, ":00%04X03%02X\n", lo_addr, (~chksum + 1) & 0x00ff);
+			fprintf(ofp, ":00%04X%02X%02X\n", lo_addr, j, (~chksum + 1) & 0x00ff);
 #endif
 		}
 

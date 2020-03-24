@@ -1,7 +1,7 @@
 /* lkmain.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2017  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -195,6 +195,27 @@ char *argv[];
 					break;
 
 				/*
+				 * Options with options
+				 */
+				case 'i':
+				case 'I':
+					if (argv[i][++k] == '1') {
+						sprintf(ip+2, "%c", argv[i][k]);
+					} else {
+						--k;
+					}
+					break;
+
+				case 'm':
+				case 'M':
+					if (argv[i][++k] == '1') {
+						sprintf(ip+2, "%c", argv[i][k]);
+					} else {
+						--k;
+					}
+					break;
+
+				/*
 				 * Preprocess these commands
 				 */
 				case 'n':
@@ -226,8 +247,10 @@ char *argv[];
 		}
 	}
 
-	if (linkp == NULL)
-		usage(ER_FATAL);
+	if (linkp == NULL) {
+		usage();
+		lkexit(ER_FATAL);
+	}
 
 	/*
 	 * If no input file is specified
@@ -360,8 +383,10 @@ intsiz()
  *		FILE *	jfp		file handle for .noi
  *		FILE *	mfp		file handle for .map
  *		FILE *	rfp		file hanlde for .rst
- *		FILE *	sfp		file handle for .rel
+ *		FILE *	sfp		file handle for stdin
  *		FILE *	tfp		file handle for .lst
+ *		FILE *	hfp		file handle for .hlr
+ *		FILE *	yfp		file handle for .cdb
  *
  *	functions called:
  *		int	fclose()	c_library
@@ -804,6 +829,11 @@ parse()
 			while (ctype[c=get()] & LETTER) {
 				switch(c) {
 
+				case 'h':
+				case 'H':
+					usage();
+					break;
+
 				case 'c':
 				case 'C':
 					if (startp->f_type != 0)
@@ -817,8 +847,10 @@ parse()
 					if (startp->f_type == F_LNK)
 						return(0);
 					unget(getnb());
-					if (*ip == 0)
-						usage(ER_FATAL);
+					if (*ip == 0) {
+						usage();
+						lkexit(ER_FATAL);
+					}
 					sv_type = startp->f_type;
 					startp->f_idp = strsto(ip);
 					startp->f_idx = fndidx(ip);
@@ -835,6 +867,11 @@ parse()
 				case 'i':
 				case 'I':
 					oflag = 1;
+					if ((c=get()) == '1') {
+						o1flag = 1;
+					} else {
+						unget(c);
+					}
 					break;
 
 				case 's':
@@ -860,6 +897,11 @@ parse()
 				case 'm':
 				case 'M':
 					mflag = 1;
+					if ((c=get()) == '1') {
+						m1flag = 1;
+					} else {
+						unget(c);
+					}
 					break;
 
 #if NOICE
@@ -1415,6 +1457,7 @@ char * str;
 char *usetxt[] = {
 	"Usage: [-Options] [-Option with arg] file",
 	"Usage: [-Options] [-Option with arg] outfile file1 [file2 ...]",
+	"  -h   or NO ARGUMENTS  Show this help list",
 	"  -p   Echo commands to stdout (default)",
 	"  -n   No echo of commands to stdout",
 	"Alternates to Command Line Input:",
@@ -1428,12 +1471,14 @@ char *usetxt[] = {
 	"  -g   global symbol=expression",
 	"Map format:",
 	"  -m   Map output generated as (out)file[.map]",
+	"  -m1    Linker generated symbols included in (out)file[.map]",
 	"  -w   Wide listing format for map file",
 	"  -x   Hexadecimal (default)",
 	"  -d   Decimal",
 	"  -q   Octal",
 	"Output:",
 	"  -i   Intel Hex as (out)file[.i--]",
+	"  -i1    Legacy: start adddress record type set to 1",
 	"  -s   Motorola S Record as (out)file[.s--]",
 	"  -t   Tandy CoCo Disk BASIC binary as (out)file[.bi-]",
 #if NOICE
@@ -1454,9 +1499,7 @@ char *usetxt[] = {
 	0
 };
 
-/*)Function	VOID	usage(n)
- *
- *		int	n		exit code
+/*)Function	VOID	usage()
  *
  *	The function usage() outputs to the stderr device the
  *	linker name and version and a list of valid linker options.
@@ -1476,15 +1519,14 @@ char *usetxt[] = {
  */
 
 VOID
-usage(n)
-int n;
+usage()
 {
 	char	**dp;
 
 	fprintf(stderr, "\nASxxxx Linker %s", VERSION);
 	fprintf(stderr, "\nCopyright (C) %s  Alan R. Baldwin", COPYRIGHT);
 	fprintf(stderr, "\nThis program comes with ABSOLUTELY NO WARRANTY.\n\n");
-	for (dp = usetxt; *dp; dp++)
+	for (dp = usetxt; *dp; dp++) {
 		fprintf(stderr, "%s\n", *dp);
-	lkexit(n);
+	}
 }

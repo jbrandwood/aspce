@@ -36,28 +36,37 @@
  *
  *	address		mode		flag	addr	base	mode
  * Direct Modes:
- *	REG		S_REG+rcode	0	0	NULL	0000   0
- *	*label		S_BYTE		----	s_addr	s_area	0001   1
- *	label		S_WORD		----	s_addr	s_area	0010   2
- *	#n		S_IMMED		0	n	NULL	0011   3
+ *	REG		S_REG+rcode	0	0	NULL	0x00
+ *
+ *	*label		S_SHORT		----	s_addr	s_area	0x01
+ *	label		S_LONG		----	s_addr	s_area	0x02
+ *	label		S_EXT		----	s_addr	s_area	0x04
  *
  * Indexed Modes:
- *	(offset,REG)	S_IXO+rcode	----	s_addr	s_area	0100   4
- *	(offset,REG).b	S_IXBO+rcode	----	s_addr	s_area	0101   5
- *	(offset,REG).w	S_IXWO+rcode	----	s_addr	s_area	0110   6
- *	(REG)		S_IX+rcode	0	0	NULL	0111   7
+ *	(offset,REG)	S_IX+rcode	----	s_addr	s_area	0x08   S_IX
+ *	(offset,REG).b	S_IXB+rcode	----	s_addr	s_area	0x09   S_IX + S_SHORT
+ *	(offset,REG).w	S_IXW+rcode	----	s_addr	s_area	0x0A   S_IX + S_LONG
+ *	(offset,REG).x	S_IXE+rcode	----	s_addr	s_area	0x0C   S_IX + S_EXT
  *
  * Indirect Modes:
- *	[label]		S_IN		----	s_addr	s_area	1000   8
- *	[*label]	S_INB		----	s_addr	s_area	1001   9
- *	[label].b	S_INB		----	s_addr	s_area	1001   9
- *	[label].w	S_INW		----	s_addr	s_area	1010  10
+ *	[label]		S_IN		----	s_addr	s_area	0x10   S_IN
+ *	[*label]	S_INB		----	s_addr	s_area	0x11   S_IN + S_SHORT
+ *	[label].b	S_INB		----	s_addr	s_area	0x11   S_IN + S_SHORT
+ *	[label].w	S_INW		----	s_addr	s_area	0x12   S_IN + S_LONG
+ *	[label].e	S_INE		----	s_addr	s_area	0x14   S_IN + S_EXT
  *
  * Indexed with Indirect Offset Modes:
- *	([label],REG)	S_IXIN+rcode	----	s_addr	s_area	1100  12
- *	([*label],REG)	S_IXINB+rcode	----	s_addr	s_area	1101  13
- *	([label],REG).b	S_IXINB+rcode	----	s_addr	s_area	1101  13
- *	([label],REG).w	S_IXINW+rcode	----	s_addr	s_area	1110  14
+ *	([label],REG)	S_IXIN+rcode	----	s_addr	s_area	0x18   S_IXIN
+ *	([*label],REG)	S_IXINB+rcode	----	s_addr	s_area	0x19   S_IXIN + S_SHORT
+ *	([label],REG).b	S_IXINB+rcode	----	s_addr	s_area	0x19   S_IXIN + S_SHORT
+ *	([label],REG).w	S_IXINW+rcode	----	s_addr	s_area	0x1A   S_IXIN + S_LONG
+ *	([label],REG).w	S_IXINE+rcode	----	s_addr	s_area	0x1C   S_IXIN + S_EXT
+ *
+ " Immediate Mode:
+ *	#n		S_IMMED		0	n	NULL	0x20  32
+ *
+ * Rgister Indexed Mode
+ *	(REG)		S_IX+rcode	0	0	NULL	0x21  33
  */
 
 int rcode;
@@ -87,7 +96,7 @@ struct expr *esp;
 	if (c == '(') {
 		if ((rcode = admode(REG)) != 0) {
 			rcode = rcode & 0xFF;
-			esp->e_mode = S_IX;
+			esp->e_mode = S_IXR;
 			if (getnb() != ')') {
 				aerr();
 			}
@@ -107,7 +116,7 @@ struct expr *esp;
 				if (addr1(esp) == S_SHORT) {
 					esp->e_mode = S_IXB;
 				} else {
-					esp->e_mode = S_IXO;
+					esp->e_mode = S_IX;
 				}
 			}
 			comma(1);

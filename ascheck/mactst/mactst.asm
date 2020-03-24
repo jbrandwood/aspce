@@ -1,6 +1,6 @@
 	.title	Macro Processor Tests
 	.nlist	(md)
-	.list	(me)
+	.list	(meb)
 
 	;	The Macro Processor directives are:
 	;

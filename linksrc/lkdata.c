@@ -1,7 +1,7 @@
 /* lkdata.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2017  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,6 +63,9 @@ char	rb[NINPUT];	/*	LST file text line being
 			 */
 int	oflag;		/*	Output file type flag
 			 */
+int	o1flag;		/*	Legacy Intel Hex flag
+			 *	Start address record type set to 1 
+			 */
 int	objflg;		/*	Linked file/library object output flag
 			 */
 
@@ -77,6 +80,9 @@ int	yflag;		/*	SDCDB output flag
 #endif
 
 int	mflag;		/*	Map output flag
+			 */
+int	m1flag;		/*	Include linker generated
+			 *	symbols in map file
 			 */
 int	xflag;		/*	Map file radix type flag
 			 */
@@ -154,6 +160,8 @@ int	listing;	/*	Assembled line listing bits
 int	lmode;		/*	Assembled line listing mode
 			 */
 int	bytcnt;		/*	Assenbled bytes for this line
+			 */
+int	bgncnt;		/*	Assembled bytes for this line
 			 */
 char	eqt_id[128];	/*	Area name for this ELIST line
 			 */
@@ -383,7 +391,7 @@ struct	areax	*axp;	/*	Pointer to the current
  *	A sym structure is created for every unique symbol
  *	referenced/defined while reading the REL files.  The
  *	struct sym contains the symbol's name, a flag value
- *	(not used in this linker), a symbol type denoting
+ *	set to inhibit map output, a symbol type denoting
  *	referenced/defined, and an address which is loaded
  *	with the relative address within the area in which
  *	the symbol was defined.  The sym structure also

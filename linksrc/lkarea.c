@@ -1,7 +1,7 @@
 /* lkarea.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2017  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -102,12 +102,13 @@
 /*
  * Create an area entry.
  *
- * A xxxxxx size nnnn flags mm bank n
- *   |           |          |       |
- *   |           |          |       `--  ap->a_bank  
- *   |           |          `----------  ap->a_flag
- *   |           `--------------------- axp->a_size
- *   `---------------------------------  ap->a_id
+ * A xxxxxx size nnnn flags mm bank n bndry mmmm
+ *   |           |          |       |       |
+ *   |           |          |       |       `-- axp->a_bndry
+ *   |           |          |       `----------  ap->a_bank  
+ *   |           |          `------------------  ap->a_flag
+ *   |           `----------------------------- axp->a_size
+ *   `-----------------------------------------  ap->a_id
  *
  */
 VOID
@@ -235,6 +236,12 @@ newarea()
 			} else {
 				ap->a_bp = hblp[(int) i];
 			}
+		} else
+		/*
+		 * Evaluate Area Boundary
+		 */
+		if (symeq("bndry", opt, 1)) {
+			axp->a_bndry = i;
 		}
 	}
 
@@ -446,25 +453,24 @@ lnkarea()
 
 		/*
 		 * Create symbols called:
-		 *	s_<areaname>	the start address of the area
-		 *	l_<areaname>	the length of the area
+		 *	a_<areaname>	the start address of the [a]rea
+		 *	l_<areaname>	the [l]ength of the area
 		 */
 
 		if (! symeq(ap->a_id, _abs_, 1)) {
-			strcpy(temp+2, ap->a_id);
-			*(temp+1) = '_';
-
-			*temp = 's';
+                        sprintf(temp, "a_%s", ap->a_id);
 			sp = lkpsym(temp, 1);
 			sp->s_addr = ap->a_addr;
 			sp->s_axp = NULL;
 			sp->s_type |= S_DEF;
+			sp->s_flag = m1flag ? 0 : 1;
 
-			*temp = 'l';
+			sprintf(temp, "l_%s", ap->a_id);
 			sp = lkpsym(temp, 1);
 			sp->s_addr = ap->a_size;
 			sp->s_axp = NULL;
 			sp->s_type |= S_DEF;
+			sp->s_flag = m1flag ? 0 : 1;
 		}
 	    }
 	}
@@ -478,22 +484,31 @@ lnkarea()
  *	lnkarea() to resolve the areax addresses.  Refer
  *	to the function lnkarea() for more detail. Pageing
  *	boundary and length errors will be reported by this
- *	function.
+ *	function.  A symbol is created for each areax with the
+ *	form 'b_<areaname>_n' where n is a counter of the areax
+ *	structures.  The symbol is the boundry modulus associated
+ *	with this areax entry.
  *
  *	local variables:
  *		a_uint	size		size of area
  *		a_uint	addr		address of area
  *		areax *	taxp		pointer to an areax structure
+ *		a_uint	bofst		boundary offset
+ *		a_uint	i		segment number
+ *		char	temp[]		symbol string
+ *		struct sym *sp		pointer to a symbol structure
  *
  *	global variables:
  *		int	lkerr		error flag
  *
  *	functions called:
- *		none
+ *		int	fprintf()	c_library
+ *		char *	sprintf()	c_library
  *
  *	side effects:
- *		All area and areax addresses and sizes are determined
- *		and linked into the structures.
+ *		All areax addresses and sizes are determined
+ *		for a single area and linked into the structures.
+ *		A symbol is created fro each areax entry.
  */
 
 VOID
@@ -502,6 +517,9 @@ struct area *tap;
 {
 	a_uint size, addr;
 	struct areax *taxp;
+	a_uint bofst, i;
+	char temp[NCPS+2];
+	struct sym *sp;
 
 	size = 0;
 	addr = tap->a_addr;
@@ -511,26 +529,50 @@ struct area *tap;
 		tap->a_id);
 	    lkerr++;
 	}
-	taxp = tap->a_axp;
-	if ((tap->a_flag & A4_OVR) == A4_OVR) {
-		/*
-		 * Overlayed sections
-		 */
-		while (taxp) {
-			taxp->a_addr = addr;
-			if (taxp->a_size > size)
-				size = taxp->a_size;
-			taxp = taxp->a_axp;
+	for (taxp = tap->a_axp, i=1; taxp != NULL; taxp = taxp->a_axp, i++) {
+		if (taxp->a_bndry != 0) {
+			bofst = addr % taxp->a_bndry;
+			if (bofst != 0) {
+ 	        		bofst = taxp->a_bndry - bofst;
+			}
+		} else {
+			bofst = 0;
 		}
-	} else {
-		/*
-		 * Concatenated sections
-		 */
-		while (taxp) {
-			taxp->a_addr = addr;
+		taxp->a_size += bofst;
+		taxp->a_addr  = addr + bofst;
+		if ((tap->a_flag & A4_OVR) == A4_OVR) {
+			/*
+			 * Overlayed sections
+			 */
+			if (taxp->a_size > size) {
+				size = taxp->a_size;
+			}
+		} else {
+			/*
+			 * Concatenated sections
+			 */
 			addr += taxp->a_size;
 			size += taxp->a_size;
-			taxp = taxp->a_axp;
+		}
+		/*
+		 * Create symbols called:
+		 *	m_<areaname>_n	the boundary [m]odulus of the areax segment n
+                 *      s_<areaname>_n  the base address of the areax [s]egment n
+		 */
+		if (! symeq(tap->a_id, _abs_, 1)) {
+			sprintf(temp, "m_%s_%u", tap->a_id, i);
+			sp = lkpsym(temp, 1);
+			sp->s_addr = taxp->a_bndry;
+			sp->s_axp = NULL;
+			sp->s_type |= S_DEF;
+			sp->s_flag = m1flag ? 0 : 1;
+
+                        sprintf(temp, "s_%s_%u", tap->a_id, i);
+			sp = lkpsym(temp, 1);
+			sp->s_addr = taxp->a_addr;
+			sp->s_axp = NULL;
+			sp->s_type |= S_DEF;
+			sp->s_flag = m1flag ? 0 : 1;
 		}
 	}
 	tap->a_size = size;

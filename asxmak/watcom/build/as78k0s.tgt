@@ -80,7 +80,7 @@ WVList
 19
 MItem
 26
-..\..\..\AS78k0s\r78kadr.c
+..\..\..\as78k0\r78k0adr.c
 20
 WString
 4
@@ -98,7 +98,7 @@ WVList
 23
 MItem
 26
-..\..\..\AS78k0s\r78kmch.c
+..\..\..\as78k0\r78k0mch.c
 24
 WString
 4
@@ -116,7 +116,7 @@ WVList
 27
 MItem
 26
-..\..\..\AS78k0s\r78kpst.c
+..\..\..\as78k0\r78k0pst.c
 28
 WString
 4

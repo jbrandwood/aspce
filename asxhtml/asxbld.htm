@@ -25,6 +25,7 @@
     <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "#VS05">Building ASxxxx and ASlink with VS2005</A>
     <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "#VS10">Building ASxxxx and ASlink with VS2010</A>
     <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "#VS13">Building ASxxxx and ASlink with VS2013</A>
+    <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "#VS15">Building ASxxxx and ASlink with VS2015</A>
     <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "#WATCOM">Building ASxxxx and ASlink with Open Watcom</A>
     <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "#BUILD">Maintenance Files _prep.bat and _clean.bat</A>
     <IMG SRC = "yellow.gif" ALT = "-">... <A HREF = "asxdoc.htm#TOP">Go to Documentation Index</A>
@@ -471,6 +472,65 @@ of anything does a complete rebuild of the program.
 <H5><A HREF= #Index> =&gt; Section Index</A></H5>
 
 <IMG width=576 height=5 border=0 SRC="rnbow.gif">
+<A NAME = "VS15"> </A>
+<H3><B>
+<IMG SRC = "green.gif" ALT = "-">... Building ASxxxx and ASlink with VS2015</A>
+</B></H3>
+
+<H4><B><PRE>
+
+Graphical User Interface 
+
+
+   Each  ASxxxx  Assembler has a VS2015 project file (*.vcxproj)
+located in a subdirectory of \asxv5pxx\asxmak\vs15\build.   Sim-
+ply  enter  this  project  filename  into  the  VS2015  IDE  and
+build/rebuild the assembler.  
+
+
+Command Line Interface 
+
+
+   Open      a      command     prompt     window     in     the
+\asxv5pxx\asxmak\vs15\build directory.  The file make.bat  found
+in  the  directory can be used to invoke the VS2015 command line
+compiler.  The make.bat file assumes that the  Visual  C++  com-
+piler  has  been  installed in the default location.  If this is
+not the case then the line 
+
+call "c:\Program Files (x86)\Microsoft Visual Studio 14.0\
+                 VC\bin\vcvars32.bat"
+
+must  be changed to match your environment.  The compiled object
+code      modules      will      be      placed      in      the
+\asxv5pxx\asxmak\vs15\build\as----\release directory and the ex-
+ecutable files will be placed in  the  \asxv5pxx\asxmak\vs15\exe
+directory.  
+
+
+
+   The command 
+
+        make all
+
+will compile and link all the ASxxxx assemblers, the ASlink pro-
+gram, and the utility programs asxscn and asxcnv.  The make file
+can make a single program by invoking make with the specific as-
+sembler, linker, or utility you wish to build:  
+
+        make aslink
+
+
+The  VS2015  command  line  compiler uses the information in the
+corresponding .vcxproj file to compile and link the programs.  
+
+   The  command  'make clean' is not required or valid as a make
+of anything does a complete rebuild of the program.  
+
+</PRE></B></H4>
+<H5><A HREF= #Index> =&gt; Section Index</A></H5>
+
+<IMG width=576 height=5 border=0 SRC="rnbow.gif">
 <A NAME = "WATCOM"> </A>
 <H3><B>
 <IMG SRC = "green.gif" ALT = "-">... Building ASxxxx and ASlink with Open Watcom</A>
@@ -644,6 +704,6 @@ as _prep.bat and removes the compiled executables.
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: October 2014</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>

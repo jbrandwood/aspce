@@ -23,10 +23,14 @@ ASXXXX =	as1802		\
 		as6812		\
 		as6816		\
 		as740		\
+		as78k0		\
 		as78k0s		\
+		as8008		\
+		as8008s		\
 		as8048		\
 		as8051		\
 		as8085		\
+		as8x300		\
 		as8xcxxx	\
 		asavr		\
 		ascheck		\
@@ -44,6 +48,7 @@ ASXXXX =	as1802		\
 		asst8		\
 		asz8		\
 		asz80		\
+		asz280		\
 		aslink		\
 		asxcnv		\
 		asxscn		\
@@ -99,7 +104,8 @@ CCFLAGS=	-A -K $(CCOPT)
 #
 LD=		TLINK
 LIBPATH =	C:\TC\LIB
-LDFLAGS=	/x/i/c/L$(LIBPATH)
+#LDFLAGS=	/x/i/c/L$(LIBPATH)
+LDFLAGS=	/s/i/c/L$(LIBPATH)
 STARTUP=	C0L.OBJ
 LIB=		EMU.LIB MATHL.LIB CL.LIB
 
@@ -135,10 +141,14 @@ SRC6811=	$(ASXBAS)\as6811
 SRC6812=	$(ASXBAS)\as6812
 SRC6816=	$(ASXBAS)\as6816
 SRC740=		$(ASXBAS)\as740
+SRC78K0=	$(ASXBAS)\as78k0
 SRC78K0S=	$(ASXBAS)\as78k0s
+SRC8008=	$(ASXBAS)\as8008
+SRC8008S=	$(ASXBAS)\as8008s
 SRC8048=	$(ASXBAS)\as8048
 SRC8051=	$(ASXBAS)\as8051
 SRC8085=	$(ASXBAS)\as8085
+SRC8X300=	$(ASXBAS)\as8x300
 SRC8XCXXX=	$(ASXBAS)\as8xcxxx
 SRCAVR=		$(ASXBAS)\asavr
 SRCCHECK=	$(ASXBAS)\ascheck
@@ -156,6 +166,7 @@ SRCST7=		$(ASXBAS)\asst7
 SRCST8=		$(ASXBAS)\asst8
 SRCZ8=		$(ASXBAS)\asz8
 SRCZ80=		$(ASXBAS)\asz80
+SRCZ280=	$(ASXBAS)\asz280
 
 
 ####################################################################
@@ -571,6 +582,30 @@ $(LIB)
 
 
 ####################################################################
+# AS78K0
+####################################################################
+
+AS78K0 =	r78k0adr.obj r78k0pst.obj r78k0mch.obj
+
+r78k0adr.obj:	$(SRC78K0)\r78k0adr.c $(SRC78K0)\r78k0.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC78K0) -I$(SRCMISC) $(SRC78K0)\r78k0adr.c $<
+r78k0pst.obj:	$(SRC78K0)\r78k0pst.c $(SRC78K0)\r78k0.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC78K0) -I$(SRCMISC) $(SRC78K0)\r78k0pst.c $<
+r78k0mch.obj:	$(SRC78K0)\r78k0mch.c $(SRC78K0)\r78k0.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC78K0) -I$(SRCMISC) $(SRC78K0)\r78k0mch.c $<
+
+as78k0:	$(ASXX) $(AS78K0)
+		$(LD) $(LDFLAGS) @&&!
+$(STARTUP) +
+$(ASXX) +
+$(AS78K0)
+$(DSTEXE)\as78k0
+as78k0
+$(LIB)
+!
+
+
+####################################################################
 # AS78K0S
 ####################################################################
 
@@ -590,6 +625,54 @@ $(ASXX) +
 $(AS78K0S)
 $(DSTEXE)\as78k0s
 as78k0s
+$(LIB)
+!
+
+
+####################################################################
+# AS8008
+####################################################################
+
+AS8008 =	i08pst.obj i08mch.obj i08adr.obj 
+
+i08pst.obj:	$(SRC8008)\i08pst.c $(SRC8008)\i08.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8008) -I$(SRCMISC) $(SRC8008)\i08pst.c $<
+i08mch.obj:	$(SRC8008)\i08mch.c $(SRC8008)\i08.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8008) -I$(SRCMISC) $(SRC8008)\i08mch.c $<
+i08adr.obj:	$(SRC8008)\i08adr.c $(SRC8008)\i08.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8008) -I$(SRCMISC) $(SRC8008)\i08adr.c $<
+
+as8008:		$(ASXX) $(AS8008)
+		$(LD) $(LDFLAGS) @&&!
+$(STARTUP) +
+$(ASXX) +
+$(AS8008)
+$(DSTEXE)\as8008
+as8008
+$(LIB)
+!
+
+
+####################################################################
+# AS8008S
+####################################################################
+
+AS8008S =	i08spst.obj i08smch.obj i08sadr.obj 
+
+i08spst.obj:	$(SRC8008S)\i08spst.c $(SRC8008S)\i08s.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8008S) -I$(SRCMISC) $(SRC8008S)\i08spst.c $<
+i08smch.obj:	$(SRC8008S)\i08smch.c $(SRC8008S)\i08s.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8008S) -I$(SRCMISC) $(SRC8008S)\i08smch.c $<
+i08sadr.obj:	$(SRC8008S)\i08sadr.c $(SRC8008S)\i08s.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8008S) -I$(SRCMISC) $(SRC8008S)\i08sadr.c $<
+
+as8008S:	$(ASXX) $(AS8008S)
+		$(LD) $(LDFLAGS) @&&!
+$(STARTUP) +
+$(ASXX) +
+$(AS8008S)
+$(DSTEXE)\as8008s
+as8008s
 $(LIB)
 !
 
@@ -660,6 +743,30 @@ $(ASXX) +
 $(AS8085)
 $(DSTEXE)\as8085
 as8085
+$(LIB)
+!
+
+
+####################################################################
+# AS8X300
+####################################################################
+
+AS8X300 =	s8xpst.obj s8xmch.obj s8xadr.obj 
+
+s8xpst.obj:	$(SRC8X300)\s8xpst.c $(SRC8X300)\s8x.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8X300) -I$(SRCMISC) $(SRC8X300)\s8xpst.c $<
+s8xmch.obj:	$(SRC8X300)\s8xmch.c $(SRC8X300)\s8x.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8X300) -I$(SRCMISC) $(SRC8X300)\s8xmch.c $<
+s8xadr.obj:	$(SRC8X300)\s8xadr.c $(SRC8X300)\s8x.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRC8X300) -I$(SRCMISC) $(SRC8X300)\s8xadr.c $<
+
+as8x300:	$(ASXX) $(AS8X300)
+		$(LD) $(LDFLAGS) @&&!
+$(STARTUP) +
+$(ASXX) +
+$(AS8X300)
+$(DSTEXE)\as8x300
+as8x300
 $(LIB)
 !
 
@@ -1068,6 +1175,30 @@ $(ASXX) +
 $(ASZ80)
 $(DSTEXE)\asz80
 asz80
+$(LIB)
+!
+
+
+####################################################################
+# ASZ280
+####################################################################
+
+ASZ280 =	z280pst.obj z280mch.obj z280adr.obj
+
+z280pst.obj:	$(SRCZ280)\z280pst.c $(SRCZ280)\z280def.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRCZ280) -I$(SRCMISC) $(SRCZ280)\z280pst.c $<
+z280mch.obj:	$(SRCZ280)\z280mch.c $(SRCZ280)\z280def.h $(SRCZ280)\z280opcy.h $(SRCZ280)\z280ops.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRCZ280) -I$(SRCMISC) $(SRCZ280)\z280mch.c $<
+z280adr.obj:	$(SRCZ280)\z280adr.c $(SRCZ280)\z280def.h $(SRCASX)\asxxxx.h
+		$(CC) $(CCFLAGS) -I$(SRCASX) -I$(SRCZ280) -I$(SRCMISC) $(SRCZ280)\z280adr.c $<
+
+asz280:		$(ASXX) $(ASZ280)
+		$(LD) $(LDFLAGS) @&&!
+$(STARTUP) +
+$(ASXX) +
+$(ASZ280)
+$(DSTEXE)\asz280
+asz280
 $(LIB)
 !
 

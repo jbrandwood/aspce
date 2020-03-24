@@ -1,7 +1,7 @@
 /* asexpr.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2019  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -581,6 +581,9 @@ int c, r;
 	if (r == 2) {
 		if (ctype[c] & RAD2)
 			return (c - '0');
+	}
+	if (ctype[c] & RAD16) {
+		err('k');
 	}
 	return (-1);
 }

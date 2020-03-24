@@ -54,20 +54,20 @@ for each addressing mode supported by AS78K0S:
                         long br instruction
 
         @saddr          short direct addressing
-                        0xFE20 <= saddr <= 0xFF1F
+                        0xFE20 &lt= saddr &lt= 0xFF1F
 
         @saddr.bit      short direct addressing
         @saddr,bit      with bit addressing (0-7)
-                        0xFE20 <= saddr <= 0xFF1F
+                        0xFE20 &lt= saddr &lt= 0xFF1F
 
         *sfr            special function registers
-                        0xFF00 <= sfr <= 0xFFCF  or
-                        0xFFE0 <= sfr <= 0xFFFF
+                        0xFF00 &lt= sfr &lt= 0xFFCF  or
+                        0xFFE0 &lt= sfr &lt= 0xFFFF
 
         *sfr.bit        special function registers
         *sfr,bit        wiht bit addressing (0-7)
-                        0xFF00 <= sfr <= 0xFFCF  or
-                        0xFFE0 <= sfr <= 0xFFFF
+                        0xFF00 &lt= sfr &lt= 0xFFCF  or
+                        0xFFE0 &lt= sfr &lt= 0xFFFF
 
         label           branch label
                         (pc relative addressing)
@@ -203,6 +203,6 @@ Double Operand Instructions
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: October 2014</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>

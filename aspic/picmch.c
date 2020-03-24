@@ -201,6 +201,7 @@ struct mne *mp;
 		opcycles = OPCY_PBITS;
 		lmode = SLIST;
 		pic_type = (int) op;
+		sym[2].s_addr = pic_type;
 		cd = picDef;
 		while (cd->id) {
 			mp = mlookup(cd->id);
@@ -529,11 +530,10 @@ struct mne *mp;
 			aerr();
 		}
 		abscheck(&e1);
-		if (e1.e_addr != 6) {
+		if ((e1.e_addr < 5) || (e1.e_addr > 7)) {
 			aerr();
-			e1.e_addr = 6;
 		}
-		outaw(op + e1.e_addr);
+		outaw(op + (e1.e_addr & 0x07));
 		break;
 
 	default:

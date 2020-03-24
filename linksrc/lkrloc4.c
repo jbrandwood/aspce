@@ -32,6 +32,10 @@
 
 #include "aslink.h"
 
+/*
+#define	DEBUG	1
+*/
+
 /*)Module	lkrloc4.c
  *
  *	The module lkrloc4.c contains the functions which
@@ -397,6 +401,9 @@ relr4()
 				return;
 			}
 			reli = symval(s[rindex]);
+#ifdef	DEBUG
+fprintf(stdout, "relr4-sym:  reli = %4X, rindex = %d\n", reli, rindex);
+#endif
 		} else {
 			if (rindex >= hp->h_narea) {
 				fprintf(stderr, "R area error\n");
@@ -404,6 +411,9 @@ relr4()
 				return;
 			}
 			reli = a[rindex]->a_addr;
+#ifdef	DEBUG
+fprintf(stdout, "relr4-area: reli = %4X, rindex = %d\n", reli, rindex);
+#endif
 		}
 
 		/*
@@ -640,6 +650,9 @@ relr4()
 			} else {
 				relv = adw_xb(argb, reli, rtp);
 			}
+#ifdef	DEBUG
+fprintf(stdout, "relr4-merge: relv = %4X\n", relv);
+#endif
 
 			/*
 			 * The Merge Mode inserts a_bytes into
@@ -659,6 +672,9 @@ relr4()
 			v = lkmerge(relv, rxm, v);
 			ptb_xb(0 , rtp);
 			adw_xb(argb, v, rtp);
+#ifdef	DEBUG
+fprintf(stdout, "relr4-merge: v = %4X\n", v);
+#endif
 
 			/*
 			 * Source Bit Masks

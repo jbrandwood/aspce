@@ -105,7 +105,25 @@ del /q *.user
 rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
+cd as78k0
+del /q *.sdf
+del /q *.user
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
 cd as78k0s
+del /q *.sdf
+del /q *.user
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
+cd as8008
+del /q *.sdf
+del /q *.user
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
+cd as8008s
 del /q *.sdf
 del /q *.user
 rmdir /s /q .\debug
@@ -124,6 +142,12 @@ rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
 cd as8085
+del /q *.sdf
+del /q *.user
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
+cd as8x300
 del /q *.sdf
 del /q *.user
 rmdir /s /q .\debug
@@ -231,6 +255,12 @@ del /q *.user
 rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
+cd asz280
+del /q *.sdf
+del /q *.user
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
 cd aslink
 del /q *.sdf
 del /q *.user
@@ -277,14 +307,13 @@ echo Valid arguments are:
 echo --------  --------  --------  --------  --------  --------
 echo all       ==        'blank'
 echo --------  --------  --------  --------  --------  --------
-echo as1802    as2650    as430     as740     as6100
-echo as61860   as6500    as6800    as6801    as6804
-echo as6805    as6808    as6809    as6811    as6812
-echo as6816    as8048    as8051    as8085    as8xcxxx
-echo asz8      asz80     asez80    asgb      asrab
-echo ash8      asf2mc8   asf8      asm8c     aspic
-echo asavr     ascheck   asscmp
-echo asst6     asst7     asst8
+echo as1802    as2650    as430     as6100    as61860   as6500
+echo as6800    as6801    as6804    as6805    as6808    as6809
+echo as6811    as6812    as6816    as740     as78k0    as78k0s
+echo as8008    as8008s   as8048    as8051    as8085    as8x300
+echo as8xcxxx  asavr     ascheck   asez80    asf2mc8   asf8
+echo asgb      ash8      asm8c     aspic     asrab     asscmp
+echo asst6     asst7     asst8     asz8      asz80     asz280
 echo --------  --------  --------  --------  --------  --------
 echo aslink    asxcnv    asxscn    s19os9
 echo --------  --------  --------  --------  --------  --------

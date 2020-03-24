@@ -188,15 +188,15 @@ The legal characters for defining labels are:
         $ (Dollar sign) 
         _ (underscore) 
 
-   A  label  may  be  any  length,  however,  only the first  79
+   A  label  may  be  any  length,  however  only  the  first 79
 characters are significant and, therefore must be  unique  among
 all   labels  in  the  source  program  (not  necessarily  among
-separately compiled modules).  An error code(s) (m or p) will be
-generated  in the assembly  listing if the  first  79 characters
-in two or more labels are the same.  The m code is caused by the
-redeclaration  of  the symbol or its reference by another state-
-ment.  The p code is generated because the symbols  location  is
-changing on each pass through the source file.  
+separately compiled modules).   An  error  code(s)  (&ltm&gt or &ltp&gt)
+will  be  generated  in  the  assembly  listing  if the first 79
+characters in two or more labels are the same.  The &ltm&gt code  is
+caused  by  the  redeclaration of the symbol or its reference by
+another statement.  The &ltp&gt code is generated because  the  sym-
+bols location is changing on each pass through the source file. 
 
    The  label  must  not  start with the characters 0-9, as this
 designates a reusable symbol with special  attributes  described
@@ -241,7 +241,7 @@ evaluated/manipulated by the operator.
 operator.  Multiple expressions used in the operand  fields  may
 be  separated  by a comma.  An operand should be preceeded by an
 operator field;  if it is not, the statement will give an  error
-(q  or  o).   All  operands  following instruction mnemonics are
+(&ltq&gt or &lto&gt).   All operands following instruction mnemonics are
 treated as expressions.  
 
    The operand field is terminated by a semicolon when the field
@@ -270,8 +270,8 @@ the end of the line.  This field is optional and may contain any
    Comments  do not affect assembly processing or program execu-
 tion.  
 
-<H5><A HREF= #Source> =&gt; Section Index</A></H5>
 </PRE></B></H4>
+<H5><A HREF= #Source> =&gt; Section Index</A></H5>
 
 <IMG width=576 height=5 border=0 SRC="rnbow.gif">
 <BR><BR>
@@ -531,7 +531,7 @@ less symbol table space  than  normal  symbols.   Their  use  is
 recommended.  
 
    The  use  of  the  same reusable symbol within a symbol block
-will generate one or both of the m or p errors.  
+will generate one or both of the &ltm&gt or &ltp&gt errors.  
 
 Example of reusable symbols:  
 
@@ -594,7 +594,7 @@ assignment statement of the following form:
    The  new  location  counter can only be specified relative to
 the current location counter.  Neglecting to specify the current
 program  counter  along with the expression on the right side of
-the assignment operator will generate the (.) error.   (Absolute
+the assignment operator will generate the &lt.&gt error.   (Absolute
 program areas may use the .org directive to specify the absolute
 location of the current program counter.) 
 
@@ -729,7 +729,7 @@ Expressions are evaluate with an operand hierarchy as follows:
 
 
    A  missing  or  illegal  operator  terminates  the expression
-analysis, causing error codes (o) and/or  (q)  to  be  generated
+analysis, causing error codes &lto&gt and/or  &ltq&gt  to  be  generated
 depending upon the context of the expression itself.  
 
    At assembly time the value of an external (global) expression
@@ -769,8 +769,9 @@ tinctions are important:
          tially  defined following assembly and must be resolved
          at link time.  
 
-<H5><A HREF= #Symbols> =&gt; Section Index</A></H5>
 </PRE></B></H4>
+<H5><A HREF= #Symbols> =&gt; Section Index</A></H5>
+<HR SIZE=3 WIDTH=100% ALIGN=Center NOSHADE>
 
 <IMG width=576 height=5 border=0 SRC="rnbow.gif">
 
@@ -784,6 +785,6 @@ tinctions are important:
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: April 2009</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>

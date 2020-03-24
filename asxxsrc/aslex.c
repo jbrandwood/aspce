@@ -420,6 +420,13 @@ int d;
 		c = get();
 		switch (c) {
 
+		default:
+			unget(c);
+
+		case '\\':
+			c = '\\';
+			break;
+
 		case 'b':
 			c = '\b';
 			break;
@@ -456,11 +463,6 @@ int d;
 			}
 			unget(c);
 			c = v;
-			break;
-
-		default:
-			unget(c);
-			c = '\\';
 			break;
 		}
 	}
@@ -565,22 +567,29 @@ int flag;
  *
  * --------------------------------------------------------------
  *
- * How the assembler sequences the command line assembler
- * source files, include files, and macros is shown in a
- * simplified manner in the following.
+ * How the assembler sequences the -i command line strings,
+ * command line assembler source files, include files, and
+ * macros is shown in a simplified manner in the following.
  *
- *	main[asmain] sequences the command line files by creating
- *	a linked list of asmf structures, one for each file.
+ *	main[asmain] sequences the assembly by creating a
+ *	linked list of asmf structures, one for each command
+ *	line string and one for each file.
  *
  *	asmf structures:
+ *
+ *	 ------       ------
+ *	| asmo | --> | asmp |
+ *	 ------       ------
+ *
+ *	At the beginning of each assembler pass set asmc = asmo
+ *	which will process any -i command line string T_INSERT
+ *	asmf structures and then process the files in sequence.
+ *
  *	             -------------       -------------               -------------
  *                  | File 1      |     | File 2      |             | File N      |
  *	 ------     |       ------|     |       ------|             |       ------|      
  *	| asmp | -->|      | next | --> |      | next | --> ... --> |      | NULL |
  *	 ------      -------------       -------------               -------------
- *
- *	At the beginning of each assembler pass set asmc = asmp
- *	and process the files in sequence.
  *
  *	If the source file invokes the .include directive to process a
  *	file then a new asmf structure is prepended to the asmc structure
@@ -636,6 +645,7 @@ int flag;
  *	of the assembler.
  *
  *	Macros are recreated during each pass of the assembler.
+ *
  */
 
 int
@@ -663,6 +673,14 @@ loop:	if (asmc == NULL) return(0);
 	}
 
 	switch(asmc->objtyp) {
+	case T_INSERT:
+		strcpy(ib,asmc->afn);
+		if (asmc->lnlist != 0) {
+			srcline++;
+		}
+		asmc = asmc->next;
+		break;
+
 	case T_ASM:
 		if (fgets(ib, NINPUT, asmc->fp) == NULL) {
 			if ((asmc->flevel != flevel) || (asmc->tlevel != tlevel)) {

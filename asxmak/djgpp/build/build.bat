@@ -15,10 +15,14 @@ make as6811
 make as6812
 make as6816
 make as740
+make as78k0
 make as78k0s
+make as8008
+make as8008s
 make as8048
 make as8051
 make as8085
+make as8x300
 make as8xcxxx
 make asavr
 make asez80
@@ -35,6 +39,7 @@ make asst7
 make asst8
 make asz8
 make asz80
+make asz280
 make ascheck
 make aslink
 make asxscn

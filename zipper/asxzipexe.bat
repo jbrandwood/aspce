@@ -10,7 +10,8 @@ del *turboc30.zip
 del *vc6.zip
 del *vs05.zip
 del *vs10.zip
-del *vs10.zip
+del *vs13.zip
+del *vs15.zip
 del *watcom.zip
 del *symantec.zip
 rem
@@ -56,6 +57,11 @@ cd ..\asxmak\vs13\exe\
 cd ..\..\..\zipper
 zip -T vs13.zip
 rem
+cd ..\asxmak\vs15\exe\
+..\..\..\zipper\zip.exe ..\..\..\zipper\vs15.zip *
+cd ..\..\..\zipper
+zip -T vs15.zip
+rem
 cd ..\asxmak\watcom\exe\
 ..\..\..\zipper\zip.exe ..\..\..\zipper\watcom.zip *
 cd ..\..\..\zipper
@@ -76,6 +82,7 @@ zip -d vc6.zip _exe
 zip -d vs05.zip _exe
 zip -d vs10.zip _exe
 zip -d vs13.zip _exe
+zip -d vs15.zip _exe
 zip -d watcom.zip _exe
 zip -d symantec.zip _exe
 rem
@@ -89,6 +96,7 @@ unzip -t vc6.zip
 unzip -t vs05.zip
 unzip -t vs10.zip
 unzip -t vs13.zip
+unzip -t vs15.zip
 unzip -t watcom.zip
 unzip -t symantec.zip
 rem
@@ -103,5 +111,6 @@ rename vc6.zip %1vc6.zip
 rename vs05.zip %1vs05.zip
 rename vs10.zip %1vs10.zip
 rename vs13.zip %1vs13.zip
+rename vs15.zip %1vs15.zip
 rename watcom.zip %1watcom.zip
 

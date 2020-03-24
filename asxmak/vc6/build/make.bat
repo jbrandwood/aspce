@@ -113,11 +113,29 @@ cd as740
 @echo off
 type as740.log
 cd ..
+cd as78k0
+@echo on
+%MS$DEV% as78k0.dsw /MAKE "as78k0 - Win32 Release" /REBUILD /OUT as78k0.log
+@echo off
+type as78k0.log
+cd ..
 cd as78k0s
 @echo on
 %MS$DEV% as78k0s.dsw /MAKE "as78k0s - Win32 Release" /REBUILD /OUT as78k0s.log
 @echo off
 type as78k0s.log
+cd ..
+cd as8008
+@echo on
+%MS$DEV% as8008.dsw /MAKE "as8008 - Win32 Release" /REBUILD /OUT as8008.log
+@echo off
+type as8008.log
+cd ..
+cd as8008s
+@echo on
+%MS$DEV% as8008s.dsw /MAKE "as8008s - Win32 Release" /REBUILD /OUT as8008s.log
+@echo off
+type as8008s.log
 cd ..
 cd as8048
 @echo on
@@ -136,6 +154,12 @@ cd as8085
 %MS$DEV% as8085.dsw /MAKE "as8085 - Win32 Release" /REBUILD /OUT as8085.log
 @echo off
 type as8085.log
+cd ..
+cd as8x300
+@echo on
+%MS$DEV% as8x300.dsw /MAKE "as8x300 - Win32 Release" /REBUILD /OUT as8x300.log
+@echo off
+type as8x300.log
 cd ..
 cd as8xcxxx
 @echo on
@@ -239,6 +263,12 @@ cd asz80
 @echo off
 type asz80.log
 cd ..
+cd asz280
+@echo on
+%MS$DEV% asz280.dsw /MAKE "asz280 - Win32 Release" /REBUILD /OUT asz280.log
+@echo off
+type asz280.log
+cd ..
 cd aslink
 @echo on
 %MS$DEV% aslink.dsw /MAKE "aslink - Win32 Release" /REBUILD /OUT aslink.log
@@ -285,11 +315,11 @@ echo all       ==        'blank'
 echo --------  --------  --------  --------  --------  --------
 echo as1802    as2650    as430     as6100    as61860   as6500
 echo as6800    as6801    as6804    as6805    as6808    as6809
-echo as6811    as6812    as6816    as740     as78k0s   as8048
-echo as8051    as8085    as8xcxxx  asavr     ascheck   asez80
-echo asf2mc8   asf8      asgb      ash8      asm8c     aspic
-echo asrab     asscmp    asst6     asst7     asst8     asz8
-echo asz80     
+echo as6811    as6812    as6816    as740     as78k0    as78k0s
+echo as8008    as8008s   as8048    as8051    as8085    as8x300
+echo as8xcxxx  asavr     ascheck   asez80    asf2mc8   asf8
+echo asgb      ash8      asm8c     aspic     asrab     asscmp
+echo asst6     asst7     asst8     asz8      asz80     asz280
 echo --------  --------  --------  --------  --------  --------
 echo aslink    asxcnv    asxscn    s19os9
 echo --------  --------  --------  --------  --------  --------

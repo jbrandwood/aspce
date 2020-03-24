@@ -1,7 +1,7 @@
 /* asmain.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2017  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@
  *	is checked for proper termination.
  *
  *	The function main() is also responsible for opening all
- *	output files (REL, LST, and SYM), sequencing the global (-g)
+ *	output files (REL, LST, HLR, and SYM), sequencing the global (-g)
  *	and all-global (-a) variable definitions, and dumping the
  *	REL file header information.
  *
@@ -149,6 +149,7 @@
  *		int	zflag		-z, disable symbol case sensitivity
  *		FILE *	lfp		list output file handle
  *		FILE *	ofp		relocation output file handle
+ *		FILE *	hfp		relocation helper file handle
  *		FILE *	tfp		symbol table output file handle
  *
  *	called functions:
@@ -180,7 +181,7 @@
  *
  *	side effects:
  *		Completion of main() completes the assembly process.
- *		REL, LST, and/or SYM files may be generated.
+ *		REL, LST, HLR, and/or SYM files may be generated.
  */
 
 int
@@ -205,47 +206,29 @@ char *argv[];
 	for (i=1; i<argc; ++i) {
 		p = argv[i];
 		if (*p == '-') {
-			if (asmc != NULL)
-				usage(ER_FATAL);
+			if (asmp != NULL) {
+				usage();
+				asexit(ER_FATAL);
+			}
 			++p;
 			while ((c = *p++) != 0) {
 				switch(c) {
-
-				case 'a':
-				case 'A':
-					++aflag;
+				/*
+				 * -h   or NO ARGUMENTS  Show this help list
+				 */
+				case 'h':
+				case 'H':
+				default:
+					++hflag;
+					usage();
 					break;
 
-				case 'b':
-				case 'B':
-					++bflag;
-					break;
-
-				case 'c':
-				case 'C':
-					cflag = 1;      /* Cycle counts in listing */
-					break;
-
-				case 'g':
-				case 'G':
-					++gflag;
-					break;
-
-#if NOICE
-				case 'j':		/* NoICE Debug  JLH */
-				case 'J':
-					++jflag;
-					++oflag;	/* force object */
-					break;
-#endif
-
-#if SDCDB
-				case 'y':		/* SDCC Debug */
-				case 'Y':
-					++yflag;
-					break;
-#endif
-
+				/*
+				 * Output:
+				 *   -l   Create list   file/outfile[.lst]
+				 *   -o   Create object file/outfile[.rel]
+				 *   -s   Create symbol file/outfile[.sym]
+				 */
 				case 'l':
 				case 'L':
 					++lflag;
@@ -261,6 +244,50 @@ char *argv[];
 					++sflag;
 					break;
 
+				/*
+				 * Listing:
+				 *   -d   Decimal listing
+				 *   -q   Octal   listing
+				 *   -x   Hex     listing (default)
+				 *   -b   Display .define substitutions in listing
+				 *   -bb  and display without .define substitutions
+				 *   -c   Disable instruction cycle count in listing
+				 *   -f   Flag relocatable references by  `   in listing file
+				 *   -ff  Flag relocatable references by mode in listing file
+				 *   -p   Disable automatic listing pagination
+				 *   -u   Disable .list/.nlist processing
+				 *   -w   Wide listing format for symbol table
+				 */
+				case 'd':
+				case 'D':
+					xflag = 2;
+					break;
+
+				case 'q':
+				case 'Q':
+					xflag = 1;
+					break;
+
+				case 'x':
+				case 'X':
+					xflag = 0;
+					break;
+
+				case 'b':
+				case 'B':
+					++bflag;
+					break;
+
+				case 'c':
+				case 'C':
+					++cflag;
+					break;
+
+				case 'f':
+				case 'F':
+					++fflag;
+					break;
+
 				case 'p':
 				case 'P':
 					++pflag;
@@ -271,14 +298,43 @@ char *argv[];
 					++uflag;
 					break;
 
+				case 'w':
+				case 'W':
+					++wflag;
+					break;
+
+				/*
+				 * Assembly Processing Options:",
+				 *   -i   Insert assembler line before input file(s)
+				 *   -v   Enable out of range signed / unsigned errors
+				 */
+				case 'i':
+				case 'I':
+					if (iflag < 0) {
+						iflag = 0;
+					}
+					++iflag;
+					break;
+
 				case 'v':
 				case 'V':
 					++vflag;
 					break;
 
-				case 'w':
-				case 'W':
-					++wflag;
+				/*
+				 * Symbol Options:
+				 *   -a   All user symbols made global
+				 *   -g   Undefined symbols made global
+				 *   -z   Disable case sensitivity for symbols
+				 */
+				case 'a':
+				case 'A':
+					++aflag;
+					break;
+
+				case 'g':
+				case 'G':
+					++gflag;
 					break;
 
 				case 'z':
@@ -286,26 +342,32 @@ char *argv[];
 					++zflag;
 					break;
 
-				case 'x':
-				case 'X':
-					xflag = 0;
+				/*
+				 * Debug Options:
+				 *   -j   Enable NoICE Debug Symbols
+				 *   -y   Enable SDCC  Debug Symbols
+				 */
+#if NOICE
+				case 'j':		/* NoICE Debug  JLH */
+				case 'J':
+					++jflag;
+					++oflag;	/* force object */
 					break;
+#endif
 
-				case 'q':
-				case 'Q':
-					xflag = 1;
+#if SDCDB
+				case 'y':		/* SDCC Debug */
+				case 'Y':
+					++yflag;
 					break;
+#endif
 
-				case 'd':
-				case 'D':
-					xflag = 2;
-					break;
-
-				case 'f':
-				case 'F':
-					++fflag;
-					break;
-
+				/*
+				 * Unlisted Options:
+				 *   -r   list line numbers in .hst help file
+				 *   -rr  list line numbers of NON listed lines
+				 *   -t   show internal block allocations
+				 */
 				case 'r':
 				case 'R':
 					++rflag;
@@ -315,42 +377,66 @@ char *argv[];
 				case 'T':
 					++tflag;
 					break;
-
-				case 'h':
-				case 'H':
-				default:
-					usage(ER_FATAL);
 				}
 			}
 		} else {
-			if (asmc == NULL) {
-				q = p;
-				if (++i < argc) {
-					p = argv[i];
-					if (*p == '-')
-						usage(ER_FATAL);
+			if (iflag-- > 0) {
+				if (asmo == NULL) {
+					/*
+					 * Default to NO Listing
+					 */
+					insline("	.nlist",0);
 				}
-				asmp = (struct asmf *)
-						new (sizeof (struct asmf));
-				asmc = asmp;
+				insline(p,1);
 			} else {
-				asmc->next = (struct asmf *)
+				if (asmp == NULL) {
+					q = p;
+					if (++i < argc) {
+						p = argv[i];
+						if (*p == '-') {
+							usage();
+							asexit(ER_FATAL);
+						}
+					}
+					asmp = (struct asmf *)
 						new (sizeof (struct asmf));
-				asmc = asmc->next;
+					if (asmo != NULL) {
+						/*
+						 * Enable listing after insertions
+						 */
+						insline("	.list",0);
+						insline("	.page",0);
+						/*
+						 * Append files to insertions
+						 */
+						asmc->next = asmp;
+					} else {
+						asmo = asmp;
+					}
+					asmc = asmp;
+				} else {
+					asmc->next = (struct asmf *)
+							new (sizeof (struct asmf));
+					asmc = asmc->next;
+				}
+				asmc->next = NULL;
+				asmc->objtyp = T_ASM;
+				asmc->line = 0;
+				asmc->flevel = 0;
+				asmc->tlevel = 0;
+				asmc->lnlist = LIST_NORM;
+				asmc->fp = afile(p, "", 0);
+				strcpy(asmc->afn,afn);
+				asmc->afp = afp;
 			}
-			asmc->next = NULL;
-			asmc->objtyp = T_ASM;
-			asmc->line = 0;
-			asmc->flevel = 0;
-			asmc->tlevel = 0;
-			asmc->lnlist = LIST_NORM;
-			asmc->fp = afile(p, "", 0);
-			strcpy(asmc->afn,afn);
-			asmc->afp = afp;
 		}
 	}
-	if (asmp == NULL)
-		usage(ER_WARNING);
+	if (asmp == NULL) {
+		if (!hflag) {
+			usage();
+		}
+		asexit(ER_WARNING);
+	}
 	if (lflag)
 		lfp = afile(q, "lst", 1);
 	if (oflag)
@@ -395,14 +481,14 @@ char *argv[];
 		asmline = 0;
 		incline = 0;
 		asmc = asmp;
+		strcpy(afn, asmc->afn);
+		afp = asmc->afp;
 		while (asmc) {
 			if (asmc->fp)
 				rewind(asmc->fp);
 			asmc = asmc->next;
 		}
-		asmc = asmp;
-		strcpy(afn, asmc->afn);
-		afp = asmc->afp;
+		asmc = asmo;
 		ap = areap;
 		while (ap) {
 			ap->a_fuzz = 0;
@@ -482,9 +568,60 @@ intsiz()
 	return(sizeof(INT32));
 }
 
+/*)Function	VOID	insline(str,i)
+ *
+ *		char *		str	-i command line string
+ *		int		i	listing allowed - (0-No/1-Yes)
+ *
+ *	The function insline() inserts a -i command line
+ *	string into the assembly stream by creating a psuedo
+ *	assembly file structure	with an object type of T_INSERT.
+ *
+ *	local variables:
+ *		none
+ *
+ *	global variables:
+ *		asmf *	asmo		command line string structure
+ *		asmf *	asmc
+ *
+ *	functions called:
+ *		new()			assym.c
+ *		strcpy()		c_library
+ *
+ *	side effects:
+ *		A T_INSERT type assembly file structure is
+ *		created which will be appended to any previously
+ *		created T_INSERT assembly file structures.
+ */
+VOID
+insline(str,i)
+char *str;
+int i;
+{
+	if (asmo == NULL) {
+		asmo = (struct asmf *)
+			new (sizeof (struct asmf));
+		asmc = asmo;
+	} else {
+		asmc->next = (struct asmf *)
+				new (sizeof (struct asmf));
+		asmc = asmc->next;
+	}
+	asmc->next = NULL;
+	asmc->objtyp = T_INSERT;
+	asmc->line = 0;
+	asmc->flevel = 0;
+	asmc->tlevel = 0;
+	asmc->lnlist = i;
+	asmc->fp = NULL;
+	asmc->afp =0;
+	strcpy(asmc->afn,str);
+	asmc->afp =0;
+}
+
 /*)Function	VOID	asexit(i)
  *
- *			int	i	exit code
+ *		int	i	exit code
  *
  *	The function asexit() explicitly closes all open
  *	files and then terminates the program.
@@ -1539,6 +1676,8 @@ loop:
 			ap->a_ref = areap->a_ref + 1;
 			ap->a_size = 0;
 			ap->a_fuzz = 0;
+			ap->a_bn = NULL;
+			ap->a_bndry = 0;
 			/*
 			 * The default PC increment is defined in ___pst.c as area[0]
 			 */
@@ -1649,7 +1788,7 @@ loop:
 		break;
 
 	case S_ORG:
-		if (dot.s_area->a_flag & A_ABS) {
+		if ((dot.s_area->a_flag & A_ABS) == A_ABS) {
 			outall();
 			laddr = dot.s_addr = absexpr();
 		} else {
@@ -2004,12 +2143,14 @@ loop:
 	case S_BOUNDARY:
 		switch(mp->m_valu) {
 		case O_EVEN:
+			boundary(0);
 			outall();
 			laddr = dot.s_addr = (dot.s_addr + 1) & ~1;
 			lmode = ALIST;
 			break;
 
 		case O_ODD:
+			boundary(1);
 			outall();
 			laddr = dot.s_addr |= 1;
 			lmode = ALIST;
@@ -2021,6 +2162,7 @@ loop:
 			if (n != 0) {
 				dot.s_addr += (v - n);
 			}
+			boundary(v);
 			outall();
 			laddr = dot.s_addr;
 			lmode = ALIST;
@@ -2108,6 +2250,7 @@ loop:
 	default:
 		if (np != NULL) {
 			macro(np);
+			lmode = SLIST;
 		} else {
 			machine(mp);
 		}
@@ -2139,6 +2282,137 @@ loop:
 		break;
 	}
 	goto loop;
+}
+
+/*)Function	VOID	boundary(n)
+ *
+ *		a_uint		n		boundary value
+ *
+ *	The function boundary() adds a boundary value required
+ *	by the assembled code in the current area and determines
+ *	the smallest common boundary of all boundaries.
+ *
+ *	boundary has no return value
+ *
+ *	local variables:
+ *		struct area *	ap	pointer to current area structure
+ *		struct bndry *	bn	pointer to a boundary structure
+ *		struct bndry *	ibn	pointer to a boundary structure
+ *		struct bndry *	jbn	pointer to a boundary structure
+ *		struct bndry *	kbn	pointer to a boundary structure
+ *		a_uint		m	modulus factor
+ *
+ *	global variables:
+ *		dot.s_area		current area pointer
+ *
+ *	functions called:
+ *		VOID	err()		assubr.c
+ *              char *	new()		assym.c
+ *
+ *	side effects:
+ *		A new boundary structure may be created
+ *		and added to the linked boundary list.
+ *		The smallest common boudary is determined
+ *		and saved in the current area structure.
+ */
+
+VOID
+boundary(n)
+a_uint n;
+{
+	struct area *ap;
+	struct bndry *bn, *ibn, *jbn, *kbn;
+	a_uint m;
+
+	ap = dot.s_area;
+
+#ifdef	LONGINT
+	m = 0x00010000l; /* last 'l' is lower case L */
+#else
+	m = 0x00010000;
+#endif
+	if (ap->a_bndry >= m) {
+		err('c');
+		return;
+	} else 
+	if (n >= m) {
+		err('c');
+		return;
+	} else
+	/*
+	 * .even and .odd
+	 */
+	if (n <= 1) {
+		n = 2;
+	}
+
+	/*
+	 * Scan boundary entries and
+	 * exit on a duplicate.
+	 */
+	bn = ap->a_bn;
+	while (bn != NULL) {
+		if (bn->a_bndry == n) {
+			return;
+		}
+		bn = bn->a_bn;
+	}
+	/*
+	 * Create new boundary entry and
+	 * place at beginning of list.
+	 */
+	bn = (struct bndry *) new (sizeof(struct bndry));
+	bn->a_bndry = n;
+	bn->a_bn = ap->a_bn;
+	ap->a_bn = bn;
+
+	/*
+	 * Exit on first boundary definition
+	 */
+	if (bn->a_bn == NULL) {
+		ap->a_bndry = n;
+		return;
+	}
+
+	/*
+	 * Compute smallest common boundary
+	 */
+	ap->a_bndry *= n;
+	ibn = ap->a_bn;
+	while (ibn != NULL) {
+		for (jbn=ap->a_bn; jbn!=NULL; jbn=jbn->a_bn) {
+			m = ibn->a_bndry % jbn->a_bndry;
+			for (kbn=ap->a_bn; kbn!=NULL; kbn=kbn->a_bn) {
+				if (m < 2) {
+					break;
+				}
+				if ((ap->a_bndry / m) < kbn->a_bndry) {
+					break;
+				}
+				if (((ap->a_bndry / m) % kbn->a_bndry) != 0) {
+					break;
+				}
+			}
+			if (kbn == NULL) {
+				ap->a_bndry /= m;
+				break;
+			}
+		}
+		if (jbn != NULL) {
+			ibn = ap->a_bn;
+		} else {
+			ibn = ibn->a_bn;
+		}
+	}
+#ifdef	LONGINT
+	m = 0x00010000l; /* last 'l' is lower case L */
+#else
+	m = 0x00010000;
+#endif
+	if (ap->a_bndry >= m) {
+		ap->a_bndry = m;
+		err('c');
+	}
 }
 
 /*)Function	VOID	equate(id,e1,equtype)
@@ -2433,9 +2707,6 @@ char *str;
  *		(3)	outall() is called to flush any remaining
  *			bufferred code from the old area to the output
  *
- *	local variables:
- *		area *	oap		pointer to old area
- *
  *	global variables:
  *		sym	dot		defined as sym[0]
  *		a_uint	fuzz		tracks pass to pass changes in the
@@ -2498,46 +2769,53 @@ a_uint a;
 }
 
 char *usetxt[] = {
-	"Usage: [-Options] file",
-	"Usage: [-Options] outfile file1 [file2 file3 ...]",
+	"Usage: [-Options] [-Option with arg] file",
+	"Usage: [-Options] [-Option with arg] outfile file1 [file2 ...]",
+	"  -h   or NO ARGUMENTS  Show this help list",
+	"Output:",
+	"  -l   Create list   file/outfile[.lst]",
+	"  -o   Create object file/outfile[.rel]",
+	"  -s   Create symbol file/outfile[.sym]",
+	"Listing:",
 	"  -d   Decimal listing",
 	"  -q   Octal   listing",
 	"  -x   Hex     listing (default)",
-	"  -g   Undefined symbols made global",
-	"  -a   All user symbols made global",
 	"  -b   Display .define substitutions in listing",
 	"  -bb  and display without .define substitutions",
 	"  -c   Disable instruction cycle count in listing",
+	"  -f   Flag relocatable references by  `   in listing file",
+	"  -ff  Flag relocatable references by mode in listing file",
+	"  -p   Disable automatic listing pagination",
+	"  -u   Disable .list/.nlist processing",
+	"  -w   Wide listing format for symbol table",
+	"Assembly:",
+	"  -i   Insert assembler line before input file(s)",
+	"  -v   Enable out of range signed / unsigned errors",
+	"Symbols:",
+	"  -a   All user symbols made global",
+	"  -g   Undefined symbols made global",
+	"  -z   Disable case sensitivity for symbols",
+#if (NOICE || SDCDB)
+	"Debugging:",
 #if NOICE
 	"  -j   Enable NoICE Debug Symbols",
 #endif
 #if SDCDB
 	"  -y   Enable SDCC  Debug Symbols",
 #endif
-	"  -l   Create list   file/outfile[.lst]",
-	"  -o   Create object file/outfile[.rel]",
-	"  -s   Create symbol file/outfile[.sym]",
-	"  -p   Disable automatic listing pagination",
-	"  -u   Disable .list/.nlist processing",
-	"  -v   Enable out of range signed / unsigned errors",
-	"  -w   Wide listing format for symbol table",
-	"  -z   Disable case sensitivity for symbols",
-	"  -f   Flag relocatable references by  `   in listing file",
-	"  -ff  Flag relocatable references by mode in listing file",
+#endif
 	"",
 	NULL
 };
 
 /*
- *	The unlisted -h option is a diagnostic which
+ *      The unlisted -t option is a diagnostic which
  *	prints the maximum include file and macro nesting
  *	during the assembly process and also prints the
  *	'hunk' allocations required during the assembly.
  */
 
-/*)Function	VOID	usage(n)
- *
- *		int	n		exit code
+/*)Function	VOID	usage()
  *
  *	The function usage() outputs to the stderr device the
  *	assembler name and version and a list of valid assembler options.
@@ -2551,24 +2829,22 @@ char *usetxt[] = {
  *		char *	usetxt[]	array of string pointers
  *
  *	functions called:
- *		VOID	asexit()	asmain.c
  *		int	fprintf()	c_library
  *
  *	side effects:
- *		program is terminated
+ *		none
  */
 
 VOID
-usage(n)
-int n;
+usage()
 {
 	char   **dp;
 
 	fprintf(stderr, "\nASxxxx Assembler %s  (%s)", VERSION, cpu);
 	fprintf(stderr, "\nCopyright (C) %s  Alan R. Baldwin", COPYRIGHT);
 	fprintf(stderr, "\nThis program comes with ABSOLUTELY NO WARRANTY.\n\n");
-	for (dp = usetxt; *dp; dp++)
+	for (dp = usetxt; *dp; dp++) {
 		fprintf(stderr, "%s\n", *dp);
-	asexit(n);
+	}
 }
 

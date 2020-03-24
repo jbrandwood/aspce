@@ -1,7 +1,7 @@
 /* assubr.c */
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2019  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -186,8 +186,10 @@ char *errors[] = {
 	"<.> use \". = . + <arg>\" not \". = <arg>\"",
 	"<a> machine specific addressing or addressing mode error",
 	"<b> address / direct page boundary error",
+	"<c> .bndry offset error",
 	"<d> direct page addressing error",
 	"<i> .include file error or an .if/.endif mismatch",
+	"<k> numerical conversion error",
 	"<m> multiple definitions error or macro recursion error",
 	"<n> .endm, .mexit, or .narg outside of a macro",
 	"<o> .org in REL area or directive / mnemonic error",
@@ -233,7 +235,7 @@ int c;
 			return(errors[i]);
 		}
 	}
-	sprintf(erb, "<e> %.*s", (int) (sizeof(erb)-5), ib);
+	sprintf(erb, "<%c> %.*s", c, (int) (sizeof(erb)-5), ib);
 	return(erb);
 }
 

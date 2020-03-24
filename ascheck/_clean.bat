@@ -99,6 +99,13 @@ del *.rst
 del *.sym
 del *.map
 cd ..
+cd path
+cd base
+cd obj
+del /Q *.*
+cd ..
+cd ..
+cd ..
 cd r_pagn
 del *.hlr
 del *.lst

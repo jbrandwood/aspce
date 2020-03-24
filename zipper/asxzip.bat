@@ -19,9 +19,8 @@ zip -T asxv5pxx.zip
 rem
 rem  Remove Non-Distribution Directories
 rem
-zip -d asxv5pxx.zip asxv5pxx\update\*
 zip -d asxv5pxx.zip asxv5pxx\asxdoc\asxrno\* asxv5pxx\asxhtmw\*
-zip -d asxv5pxx.zip asxv5pxx\updater\* asxv5pxx\test\*
+zip -d asxv5pxx.zip asxv5pxx\updater\* asxv5pxx\misc\*
 rem
 rem  Remove Pad File
 rem

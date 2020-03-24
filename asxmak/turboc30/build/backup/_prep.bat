@@ -1,7 +1,7 @@
 REM _prep.bat
-del *.obj
+del *.o
 del *.map
 del ..\misc\*.lst
-del ..\exe\*.obj
+del ..\exe\*.o
 del ..\exe\*.map
 

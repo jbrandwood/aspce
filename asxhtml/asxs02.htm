@@ -263,7 +263,7 @@ where:  string  represents a text string.  The string is printed
                 characters,  as  long  as the characters are not
                 contained within  the  string  itself.   If  the
                 delimiting  characters  do  not  match, the .msg
-                directive will give the (q) error.  
+                directive will give the &ltq&gt error.  
 
 
    The  .msg  directive  is  useful to report assembly status or
@@ -281,7 +281,7 @@ Format:
 
 where:  exp     represents   an  absolute  expression.   If  the
                 evaluation of the expression results  in  a  non
-                zero value then an 'e' error is reported and the
+                zero value then an &lte&gt error is reported and the
                 text line is listed in the generated error.  
 
 
@@ -456,7 +456,7 @@ where:  string  is a string of printable ascii characters.
                 characters,  as  long  as the characters are not
                 contained within  the  string  itself.   If  the
                 delimiting  characters  do not match, the .ascii
-                directive will give the (q) error.  
+                directive will give the &ltq&gt error.  
 
 The  .ascii,  .fcc, and .str directives place one binary byte of
 data for each character in the string into the object module.  
@@ -485,7 +485,7 @@ where:  string  is a string of printable ascii characters.
                 characters,  as  long  as the characters are not
                 contained within  the  string  itself.   If  the
                 delimiting  characters  do not match, the .ascis
-                and .strs directives will give the (q) error.  
+                and .strs directives will give the &ltq&gt error.  
 
 
    The .ascis and .strs directives place one binary byte of data
@@ -516,7 +516,7 @@ where:  string  is a string of printable ascii characters.
                 characters,  as  long  as the characters are not
                 contained within  the  string  itself.   If  the
                 delimiting  characters  do not match, the .asciz
-                and .strz directive will give the (q) error.  
+                and .strz directive will give the &ltq&gt error.  
 
 
    The .asciz and .strz directives place one binary byte of data
@@ -536,7 +536,7 @@ Format:
 
 where:  exp     represents   an  absolute  expression.   If  the
                 evaluation of the expression results  in  a  non
-                zero value then an 'e' error is reported and the
+                zero value then an &lte&gt error is reported and the
                 text line is listed in the generated error.  
 
 
@@ -618,34 +618,57 @@ of n.
 changes  the current location to be at a multiple of 4, a 4-byte
 boundary.  
 
-   The  relocation  and/or  concatenation  of an area containing
-.bndry directives to place code at specific boundaries will  NOT
-maintain  the  specified  boundaries.  When relocating such code
-areas you must specify the base addresses to the linker manually
-and/or  you must pad the allocated space of an area to match the
-boundary conditions.  
+   The boundary specifications are propagated to the linker as a
+boundary modulus, ie the smallest common boundary for all  .odd,
+.even, and .bndry directives contained within the area.  A boun-
+dary value of 1 is equivalent to .odd and a boundary value of  2
+is equivalent to .even.  Because areas are always assembled with
+an initial address of 0, an even address, both  .odd  and  .even
+are modulus 2 boundaries.  
 
-   As  an  example  suppose  you wish to link multiple assembled
-code sections, each of which has code for the same area and  re-
-quires a 4 byte boundary.  The starting address of the area must
-be specified to the linker on a 4 byte  boundary  and  each  as-
-sembled code section must be padded to fill out the area in each
-of the individually assembled files.  The  following  code  will
-provide  the necessary area padding to allow a succesful linking
-of files and maintain the boundary requirements:  
+   As  an  example, suppose there are two sections:  a CODE sec-
+tion and a DATA section.  The program code is  written  so  that
+the  data  associated with this section of the program code fol-
+lows immediately.  
 
-        .$.end = .              ; end of area address
-        .bndry  4               ; set boundary
-        .if ne,. - .$.end       ; is . the same ?
-          . = . - 1             ; no: backup 1 byte
-          .byte 0               ; place padding byte
-        .endif
+                .area   CODE
+                ; Subroutine 1 Code
+                ; Uses data having a boundary of 6
 
+                .area   DATA
+                ; Subroutine 1 Data
+                .bndry  6
+                .word   1, 2, 3
 
-   If  all  files  are  assembled  simultaneously  then only the
-.bndry directive is required at the beginning  of  the  area  in
-each  file and the initial area address must be specified to the
-linker.  
+                ...
+
+                .area   CODE
+                ; Subroutine 2 Code
+                ; Uses data having a boundary of 8
+
+                .area   DATA
+                ; Subroutine 2 Data
+                .bndry  8
+                .word   1, 2, 3, 4,
+
+   Since  the CODE and DATA sections are assembled during a sin-
+gle assembly (also applies to include files) the  the  assembler
+compiles all CODE segments as a single area segment.  The assem-
+bler also compiles all the DATA segments as a single  area  seg-
+ment  which  has  two .bndry directives and will have a boundary
+modulus of 24.  24 is the smallest boundary divisible by 6 and 8
+with  no remainder.  When the assembled file is linked the loca-
+tion of the data in the DATA area will be offset to  an  address
+which has a boundary modulus of 24.  
+
+   When  multiple files containing the same area names (projects
+with multiple independently compiled files or library files) are
+linked  together  each  area segment will be offset to match the
+segments boundary modulus.  
+
+   Boundary  specifications  will also be preserved when an area
+base address is specified with the -b linker option  and/or  the
+area is placed within a bank.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -761,14 +784,6 @@ sections:
                         This   program   area   is    of    type
                         (REL,CON,DSEG).  
 
-The  ASxxxx  assemblers  also automatically generate two symbols
-for each program area:  
-
-        's_<area>'      This is the starting address of the pro-
-                        gram area.  
-
-        'l_<area>'      This is the length of the program area. 
-
 The .area names and options are never case sensitive.  
 
 </PRE></B></H4>
@@ -844,7 +859,7 @@ where:  exp     is  an absolute expression that becomes the cur-
                 rent location counter.  
 
 The  .org directive is valid only in an absolute program section
-and will give a (q) error if used in a relocatable program area.
+and will give a &ltq&gt error if used in a relocatable program area.
 The  .org  directive specifies that the current location counter
 is to become the specified absolute value.  
 
@@ -1060,11 +1075,11 @@ conditions are determined by the .if/.else conditional state.
 nesting of 10 levels.  
 
    The  use  of the .iff, .ift, or .iftf directives outside of a
-conditional block results in a (i) error code.  
+conditional block results in a &lti&gt error code.  
 
    The  use of a .else directive outside a .if/.endif block will
-generate an (i) error.  Assemblies having unequal .if and .endif
-counts will cause an (i) error.  
+generate an &lti&gt error.  Assemblies having unequal .if and .endif
+counts will cause an &lti&gt error.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -1266,8 +1281,8 @@ All .if/.else/.endif directives are limited to a maximum nesting
 of 10 levels.  
 
    The  use of a .else directive outside a .if/.endif block will
-generate an (i) error.  Assemblies having unequal .if and .endif
-counts will cause an (i) error.  
+generate an &lti&gt error.  Assemblies having unequal .if and .endif
+counts will cause an &lti&gt error.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -1318,8 +1333,8 @@ All .if/.else/.endif directives are limited to a maximum nesting
 of 10 levels.  
 
    The  use of a .else directive outside a .if/.endif block will
-generate an (i) error.  Assemblies having unequal .if and .endif
-counts will cause an (i) error.  
+generate an &lti&gt error.  Assemblies having unequal .if and .endif
+counts will cause an &lti&gt error.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -1375,8 +1390,8 @@ All .if/.else/.endif directives are limited to a maximum nesting
 of 10 levels.  
 
    The  use of a .else directive outside a .if/.endif block will
-generate an (i) error.  Assemblies having unequal .if and .endif
-counts will cause an (i) error.  
+generate an &lti&gt error.  Assemblies having unequal .if and .endif
+counts will cause an &lti&gt error.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -1432,8 +1447,8 @@ All .if/.else/.endif directives are limited to a maximum nesting
 of 10 levels.  
 
    The  use of a .else directive outside a .if/.endif block will
-generate an (i) error.  Assemblies having unequal .if and .endif
-counts will cause an (i) error.  
+generate an &lti&gt error.  Assemblies having unequal .if and .endif
+counts will cause an &lti&gt error.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -1481,8 +1496,8 @@ All .if/.else/.endif directives are limited to a maximum nesting
 of 10 levels.  
 
    The  use of a .else directive outside a .if/.endif block will
-generate an (i) error.  Assemblies having unequal .if and .endif
-counts will cause an (i) error.  
+generate an &lti&gt error.  Assemblies having unequal .if and .endif
+counts will cause an &lti&gt error.  
 
 </PRE></B></H4>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
@@ -1575,7 +1590,7 @@ where:  string  represents  a string that is the file specifica-
                 characters,  as  long  as the characters are not
                 contained within  the  string  itself.   If  the
                 delimiting characters do not match, the .include
-                directive will give the (q) error.  
+                directive will give the &ltq&gt error.  
 
    The .include directive is used to insert a source file within
 the source file currently being assembled.  When this  directive
@@ -1596,6 +1611,102 @@ cludes  a  file  specified   as   "include1"   then   the   file
 D:\proj\include1.asm is opened.  
 
 </PRE></B></H4>
+
+<H4><B><PRE>
+    Including Files In Windows/DOS  -
+    Graphical Illustration of Include File Locations
+    for the following command line entry:
+
+    __> bin\ascheck -l -o -s  obj\prjct.rel   src\prjct\prjct.asm
+</PRE></B></H4>
+<H5><B><PRE>
+
+                         /-----------------------------------------------------------------------\
+                         |                                           (rooted)                    |
+             _____       |           _____                                                       |
+            |     |      |          |     |                                                      |
+         ---| inc |  &lt---/       ---| bin |                                                      |
+         |  |_____|              |  |_____|                                                      |
+         |     |                 |     |                                                         |
+         |     \___ inc4.asm     |     \___ ascheck.exe                                          |
+         |                       |                                                               |
+         |                       |                                                               |
+ _____   |   _____       _____   |   _____       _____                                           |
+|     |  |  |     |     |     |  |  |     |     |     |      (in prjct.asm directory)            |
+| C:\ |-----| ..\ |-----| __&gt |--+--| src |-----|prjct|  &lt-------------------------------\       |
+|_____|     |_____|  |  |_____|  |  |_____|  |  |_____|                                  |       |
+                     |           |           |     |                .include "inc1.asm" -/       |
+                     |     ^     |           |     \___ prjct.asm   .include "C:\inc\inc4.asm" --/
+                     |     |     |           |     \___ inc1.asm    .include "..\inc\inc3.asm" -------\
+    Current          |     |     |           |   _____              .include "src\inc\inc2.asm" -\    |
+    Working  ------&gt | &gt---/     |           |  |     |                                          |    |
+   Directory         |           |           ---| inc |  &lt---------------------------------------/    |
+                     |           |              |_____|   (relative to current working directory)     |
+                     |           |                 |                                                  |
+                     |           |                 \___ inc2.asm                                      |
+                     |           |   _____                                                            |
+                     |           |  |     |                                                           |
+                     |           ---| obj |                                                           |
+                     |              |_____|                                                           |
+                     |                 |                                                              |
+                     |                 \___ .REL, .SYM, .LST, .HLR                                    |
+                     |                                                                                |
+                     |   _____                                                                        |
+                     |  |     |                          (relative to current working directory)      |
+                     ---| inc |  &lt--------------------------------------------------------------------/
+                        |_____|
+                           |
+                           \___ inc3.asm
+
+</PRE></B></H5>
+
+<H4><B><PRE>
+    Including Files In Linux  -
+    Graphical Illustration of Include File Locations
+    for the following command line entry:
+
+    __$ bin/ascheck -l -o -s  obj/prjct.rel   src/prjct/prjct.asm
+</PRE></B></H4>
+<H5><B><PRE>
+
+                         /-----------------------------------------------------------------------\
+                         |                                           (rooted)                    |
+             _____       |           _____                                                       |
+            |     |      |          |     |                                                      |
+         ---| inc |  &lt---/       ---| bin |                                                      |
+         |  |_____|              |  |_____|                                                      |
+         |     |                 |     |                                                         |
+         |     \___ inc4.asm     |     \___ ascheck                                              |
+         |                       |                                                               |
+         |                       |                                                               |
+ _____   |   _____       _____   |   _____       _____                                           |
+|     |  |  |     |     |     |  |  |     |     |     |      (in prjct.asm directory)            |
+|  /  |-----| ../ |-----| __$ |--+--| src |-----|prjct|  &lt-------------------------------\       |
+|_____|     |_____|  |  |_____|  |  |_____|  |  |_____|                                  |       |
+                     |           |           |     |                .include "inc1.asm" -/       |
+                     |     ^     |           |     \___ prjct.asm   .include "/inc/inc4.asm" ----/
+                     |     |     |           |     \___ inc1.asm    .include "../inc/inc3.asm" -------\
+    Current          |     |     |           |   _____              .include "src/inc/inc2.asm" -\    |
+    Working  ------&gt | &gt---/     |           |  |     |                                          |    |
+   Directory         |           |           ---| inc |  &lt---------------------------------------/    |
+                     |           |              |_____|   (relative to current working directory)     |
+                     |           |                 |                                                  |
+                     |           |                 \___ inc2.asm                                      |
+                     |           |   _____                                                            |
+                     |           |  |     |                                                           |
+                     |           ---| obj |                                                           |
+                     |              |_____|                                                           |
+                     |                 |                                                              |
+                     |                 \___ .REL, .SYM, .LST, .HLR                                    |
+                     |                                                                                |
+                     |   _____                                                                        |
+                     |  |     |                          (relative to current working directory)      |
+                     ---| inc |  &lt--------------------------------------------------------------------/
+                        |_____|
+                           |
+                           \___ inc3.asm
+
+</PRE></B></H5>
 <H5><A HREF= #Directives> =&gt; Section Index</A></H5>
 <HR SIZE=3 WIDTH=100% ALIGN=Center NOSHADE>
 <H4><B><PRE>
@@ -1623,7 +1734,7 @@ where:  string  represents  a string that is substituted for the
                 characters,  as  long  as the characters are not
                 contained within  the  string  itself.   If  the
                 delimiting  characters do not match, the .define
-                directive will give the (q) error.  
+                directive will give the &ltq&gt error.  
 
    The  .define  directive specifies a user defined string which
 is substituted for the keyword.  The substitution string may it-
@@ -1631,7 +1742,7 @@ self  contain other keywords that are substitutable.  The assem-
 bler resumes the parse of the line at the point the keyword  was
 found.  Care must be excersized to avoid any circular references
 within .define directives, otherwise the assembler may  enter  a
-'recursion runaway' resulting in an 's' error.  
+'recursion runaway' resulting in an &lts&gt error.  
 
    The  .undefine  directive removes the keyword as a substitut-
 able string.  No error is returned if the keyword  was  not  de-
@@ -1813,7 +1924,7 @@ Format:
 sembler output configuration.  These  directives  are  currently
 only enabled in assembler 'ascheck'.  
 
-   An  'm' error will be generated if the .lohi and .hilo direc-
+   An  &ltm&gt error will be generated if the .lohi and .hilo direc-
 tives are both used within the same assembly source file.  
 
 </PRE></B></H4>
@@ -1853,7 +1964,7 @@ record formats described in the linker section for details.
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: April 2009</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>
 

@@ -72,11 +72,14 @@ jmp_buf	jump_env;	/*	compiler dependent structure
  *		char	afn[FILSPC];	File Name
  *	};
  */
-struct	asmf	*asmp;	/*	The pointer to the first assembler
-			 *	source file structure of a linked list
-			 */
 struct	asmf	*asmc;	/*	Pointer to the current
 			 *	source input structure
+			 */
+struct	asmf	*asmo;	/*	The pointer to the first
+			 *	command line insert structure
+			 */
+struct	asmf	*asmp;	/*	The pointer to the first assembler
+			 *	source file structure of a linked list
 			 */
 struct	asmf	*asmi;	/*	Queued pointer to an include file
 			 *	source input structure
@@ -231,7 +234,9 @@ int	fflag;		/*	-f(f), relocations flagged flag
 			 */
 int	gflag;		/*	-g, make undefined symbols global flag
 			 */
-			/*	-h, diagnostic help printout flag
+int	hflag;		/*	-h, diagnostic help printout flag
+			 */
+int	iflag;		/*	-i, insert command line string flag
 			 */
 int	jflag;		/*	-j, enable NoICE Debug Symbols
 			 */

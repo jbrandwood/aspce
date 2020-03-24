@@ -29,10 +29,14 @@ wmake -f as6811.mk -h -e
 wmake -f as6812.mk -h -e
 wmake -f as6816.mk -h -e
 wmake -f as740.mk -h -e
+wmake -f as78k0.mk -h -e
 wmake -f as78k0s.mk -h -e
+wmake -f as8008.mk -h -e
+wmake -f as8008s.mk -h -e
 wmake -f as8048.mk -h -e
 wmake -f as8051.mk -h -e
 wmake -f as8085.mk -h -e
+wmake -f as8x300.mk -h -e
 wmake -f as8xcxxx.mk -h -e
 wmake -f asavr.mk -h -e
 wmake -f ascheck.mk -h -e
@@ -50,6 +54,7 @@ wmake -f asst7.mk -h -e
 wmake -f asst8.mk -h -e
 wmake -f asz8.mk -h -e
 wmake -f asz80.mk -h -e
+wmake -f asz280.mk -h -e
 wmake -f aslink.mk -h -e
 wmake -f asxcnv.mk -h -e
 wmake -f asxscn.mk -h -e
@@ -80,11 +85,11 @@ echo all       ==        'blank'
 echo --------  --------  --------  --------  --------  --------
 echo as1802    as2650    as430     as6100    as61860   as6500
 echo as6800    as6801    as6804    as6805    as6808    as6809
-echo as6811    as6812    as6816    as740     as78k0s   as8048
-echo as8051    as8085    as8xcxxx  asavr     ascheck   asez80
-echo asf2mc8   asf8      asgb      ash8      asm8c     aspic
-echo asrab     asscmp    asst6     asst7     asst8     asz8
-echo asz80     
+echo as6811    as6812    as6816    as740     as78k0    as78k0s
+echo as8008    as8008s   as8048    as8051    as8085    as8x300
+echo as8xcxxx  asavr     ascheck   asez80    asf2mc8   asf8
+echo asgb      ash8      asm8c     aspic     asrab     asscmp
+echo asst6     asst7     asst8     asz8      asz80     asz280
 echo --------  --------  --------  --------  --------  --------
 echo aslink    asxcnv    asxscn    s19os9
 echo --------  --------  --------  --------  --------  --------

@@ -16,10 +16,14 @@ del as6811
 del as6812
 del as6816
 del as740
+del as78k0
 del as78k0s
+del as8008
+del as8008s
 del as8048
 del as8051
 del as8085
+del as8x300
 del as8xcxxx
 del asavr
 del ascheck
@@ -37,6 +41,7 @@ del asst7
 del asst8
 del asz8
 del asz80
+del asz280
 del aslink
 del asxcnv
 del asxscn

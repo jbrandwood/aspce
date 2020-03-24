@@ -763,7 +763,7 @@ sta [extext]	; 92*00
 
 stx 12		; 86 12
 stx *dir	; 86 83
-stx *extdir	; 86*0
+stx *extdir	; 86*00
 		; ---
 stx 1234	; 8E 34 12
 stx ext		; 8E 22 81
@@ -775,7 +775,7 @@ stx *extdir,y	; 96*00
 
 sty 12		; 84 12
 sty *dir	; 84 83
-sty *extdir	; 84*0
+sty *extdir	; 84*00
 		; ---
 sty 1234	; 8C 34 12
 sty ext		; 8C 22 81

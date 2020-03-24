@@ -46,6 +46,9 @@ if %1.==vs10. goto VS10
 REM VS13
 if %1.==VS13. goto VS13
 if %1.==vs13. goto VS13
+REM VS15
+if %1.==VS15. goto VS15
+if %1.==vs15. goto VS15
 REM Watcom
 if %1.==WATCOM. goto WATCOM
 if %1.==watcom. goto WATCOM
@@ -88,6 +91,10 @@ goto EXIT
 path=r:\asxv5pxx\asxmak\vs13\exe
 goto EXIT
 
+:VS15
+path=r:\asxv5pxx\asxmak\vs15\exe
+goto EXIT
+
 :WATCOM
 path=r:\asxv5pxx\asxmak\watcom\exe
 goto EXIT
@@ -107,6 +114,7 @@ echo vc6       VC6
 echo vs05      VS05
 echo vs10      VS10
 echo vs13      VS13
+echo vs15      VS15
 echo watcom    WATCOM
 echo --------  --------
 echo.

@@ -7,29 +7,95 @@
 <A href="../home.htm">
 <IMG width=343 height=58 border=0 SRC="welcom.gif" ALT="Welcome"></A>
 
-<H2>ASxxxx Change Log</H2>
+<H2>ASxxxx Release Notes</H2>
 
 <IMG width=576 height=5 border=0 SRC="rnbow.gif">
 
 <H4><B><PRE>
-Version 5.10 Update 1
-2015_06_27
+                RELEASE NOTES
 
-   This  update  for  Version  5.10  of the  ASxxxx Cross
+
+   Asxxxx/ASlink version 5.30 is considered
+a major release version.  
+
+2019_03_10 Version 5.30 Update 1
+
+   This  update  for  Version  5.30  of the  ASxxxx Cross
+Assemblers includes fixes for the following errors:
+
+   (1)  The as78k0 assembler had numerous register
+        'H' and 'L' errors which have been corrected.
+
+   (2)  The linker reported the wrong version and has
+        corrected.
+
+
+January 2019 Version 5.3
+
+   (1)  Added new assemblers:
+        as78k0, as8008, as8008s, as8x300, and asz280
+
+   (2)  General assembler updates
+        added -i to insert assember lines before input files
+        fixed .macro listing options
+        fixes related to &ltq&gt errors and the -bb option
+        fix the escape processing of the '\' character
+        .include file location illustrations
+
+   (3)  General linker updates
+        fix library path file strings
+        rewrite of .lst to .rst translation
+
+   (4)  Assembler specific fixes
+        as740
+        changed 2-byte code to 1-byte code definition
+
+        as8048
+        Corrected bug in "sel" instruction in .8041 mode.
+
+        asf2mc
+        Corrected documentation for asf2mc processor types.
+
+        aspic
+        Fixed missing machine type variable definition
+        Fixed 'tris' instruction
+
+        asst8
+        Included add/addw/sub/subw sp,#byte modes.
+        Added the int opcode.  Cleaned up st8addr.c
+        addressing mode comments and code.
+
+
+January 2017 Version 5.20
+
+   (1)  Completed the functionality for propagating
+        the boundary specifications .odd, .even, and
+        .bndry processed during assembly to the linker.
+
+   (2)  Restored the correct functionality of the
+        .org directive in areas of REL type.
+
+   (3)  Added Intel Hex legacy start address record
+        type 1 as an option.
+
+
+Summary  of changes/additions to the ASxxxx Assemblers from Ver-
+sion 5.11 to Version 4.11.  
+
+
+2015_06_27 Version 5.10 Update 1
+
+   This update for Version 5.10 of the ASxxxx Cross
 Assemblers includes fixes for the following errors:
 
    (1)  The as6500 assembler incorrectly assembled
         cpx # and cpy # instructions.
 
    (2)  An error in asmain.c inhibited the listing of
-        all .if.. assembler directives.
+        all .if.. assembly directives.
 
 
-   Asxxxx/ASlink version 5.10 is considered
-a major release version.  
-
-Version 5.10
-2014_10_31
+2014_10_31 Version 5.10
 
    (1)  Rewrite of listing to relocated listing translation
         code in the assembler and the linker base code.
@@ -42,10 +108,7 @@ Version 5.10
    (3)  Add as78k0s assembler (Renesas/NEC 78K/0S) 
 
 
-   Summary  of  changes/additions  to the ASxxxx Assemblers from
-Version 4.11 to Version 5.06.  
-
-Version 5.00 Update 6
+2013_05_12 Version 5.00 Update 6
 
    This  update  for  Version  5.00  of the  ASxxxx Cross
 Assemblers rolls up updates 1, 2, 3, 4, and 5 with fixes
@@ -55,8 +118,8 @@ for the following:
 
    (2)  Fix aslink error reporting for PC relative modes.
 
-Version 5.00 Update 5
-2012_08_01
+
+2012_08_01 Version 5.00 Update 5
 
 Update_05 for the ASxxxx Assembler and Linker Version 5.00
 (use 'pkunzip -d u05500.zip' for extraction with MS-DOS)
@@ -100,14 +163,14 @@ a new assembler and fixes:
         fix type conversion warnings, and update the
         various build, make, and test files.
 
-   (1)  New cross assemblers for STMicroelectronics
+   (3)  New cross assemblers for STMicroelectronics
         ST6, ST7, and STM8 microprocessors.
 
-   (2)  An ASlink list file update error fix (-u option)
+   (4)  An ASlink list file update error fix (-u option)
         causing some errors not to be inserted into the
         created .rst file.
 
-   (3)  An additional ASxxxx assembler option (-v) which
+   (5)  An additional ASxxxx assembler option (-v) which
         enables checking for out of range signed / unsigned
         values in symbol equates and arithmetic operations.
         This option has some ambiguities as internally the
@@ -158,9 +221,6 @@ deleted:
         [asxv5pxx\asxmak\vs05\asf2mc8]
 
 
-
-
-
 2011_07_24 Version 5.00 Update 4
 
    This  update  for  Version  5.00  of the  ASxxxx Cross
@@ -175,7 +235,6 @@ Assemblers includes fixes for the following errors:
         a PC-Relative addressing mode.  These
         instructions include: jbc, jb, jbn, jc,
         jnc, jz, jnz, cjne, and djnz.
-
 
 
 2010_10_31 Version 5.00 Update 3
@@ -229,7 +288,6 @@ three new assemblers and fixes:
         to 'nxtline()'.
 
 
-
 2010_04_01 Version 5.00 Update 2
 
    This  update  for  Version  5.00  of the  ASxxxx Cross
@@ -246,7 +304,6 @@ Assemblers includes fixes for the following errors:
         referenced by the .__.END. variable.
 
 
-
 2010_03_03 Version 5.00 Update 1
 
    This  update  for  Version  5.00  of the  ASxxxx Cross
@@ -258,14 +315,12 @@ Assemblers includes fixes for the following errors:
         fprintf(arg1, arg2) with fprintf(arg1, "%s", arg2)
         in each affected line of code.
 
-
    (2)  The newest versions of gcc (and perhaps other
         compilers) have defined 'getline' as a standard
         function in 'stdio.h'.  This conflicts with the
         function 'getline()' in the ASxxxx package.
         All references to 'getline()' have been changed
         to 'nxtline()'.
-
 
 
 2009_04_01 (Version 5.00)
@@ -361,12 +416,12 @@ evenly divisible by a specified integer value.
 
 e.g.    .org    0
         .bndry  4
+
         ; . == 0
 
         .org    1
         .bndry  4
         ; . == 4
-
 
 
 2009_02
@@ -399,11 +454,11 @@ e.g.    .org    0
        an addressing error when the first argument
        register was not r0:
 
-           stra    r1,[addr,r2]  should give an 'a'
+           stra    r1,[addr,r2]  should give an &lta&gt
                    error, the source must be r0
 
 
-           loda    r2,[addr,r3]  should give an 'a'
+           loda    r2,[addr,r3]  should give an &lta&gt
                    error, the destination must be r0
 
    3)  The S2650 auto increment and decrement indexing 
@@ -416,7 +471,6 @@ e.g.    .org    0
 
    The AS2650 assembler tstscn files have been updated
    for testing the assemblers.
-
 
 
 2007_10_21 (Version 4.11 Fix)
@@ -447,7 +501,6 @@ e.g.    .org    0
    5)  New  tstscn files for testing the assemblers.
 
 
-
 2006_11_01 (Version 4.11 Optional Update 2)
 
    1)  OS9  definition files and an  OS9 assembler module
@@ -465,7 +518,6 @@ e.g.    .org    0
 
    3)  new  make  and  project files which may be used to
        compile the s19os9 program.
-
 
 
 2006_11_01 (Version 4.11 Optional Update 01)
@@ -487,7 +539,6 @@ e.g.    .org    0
 
    a non-zero argument invokes the directive irrespective
    of the .if / .else / .endif status.
-
 
 
 2006_07_26 (Version 4.11 Patch 01)
@@ -516,7 +567,6 @@ e.g.    .org    0
         aspic
 
 
-
    Summary  of  changes/additions  to the ASxxxx Assemblers from
 Version 4.10 to Version 4.11.  
 
@@ -526,7 +576,7 @@ Version 4.10 to Version 4.11.
 
      2.  Incorporated  the patches contained in p02410.zip which
          corrected improper use of  R_USGN  in  most  addressing
-         modes  in AS6500.  This caused unexpected 'a' errors in
+         modes  in AS6500.  This caused unexpected &lta&gt errors in
          V4.xx because of the ASxxxx core change to  32-bit  in-
          tegers and arithmetic.  
 
@@ -567,7 +617,6 @@ Version 4.10 to Version 4.11.
      5.  Incorporated  the updates contained in u01410.zip which
          added 10 undocumented 8085 instructions to  the  AS8085
          assembler.  
-
 
 
    Summary  of  changes/additions  to the ASxxxx Assemblers from
@@ -650,6 +699,6 @@ Version 4.00 to Version 4.10.
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: October 2014</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>

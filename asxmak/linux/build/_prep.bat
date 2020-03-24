@@ -15,10 +15,14 @@ del ..\..\..\as6811\*.o
 del ..\..\..\as6812\*.o
 del ..\..\..\as6816\*.o
 del ..\..\..\as740\*.o
+del ..\..\..\as78k0\*.o
 del ..\..\..\as78k0s\*.o
+del ..\..\..\as8008\*.o
+del ..\..\..\as8008s\*.o
 del ..\..\..\as8048\*.o
 del ..\..\..\as8051\*.o
 del ..\..\..\as8085\*.o
+del ..\..\..\as8x300\*.o
 del ..\..\..\as8xcxxx\*.o
 del ..\..\..\asavr\*.o
 del ..\..\..\ascheck\*.o
@@ -36,8 +40,12 @@ del ..\..\..\asst7\*.o
 del ..\..\..\asst8\*.o
 del ..\..\..\asz8\*.o
 del ..\..\..\asz80\*.o
+del ..\..\..\asz280\*.o
 del ..\..\..\linksrc\*.o
 del ..\..\..\asxxmisc\*.o
 del ..\..\..\s19os9\*.o
 del ..\..\..\asxxsrc\*.o
 del ..\misc\*.lst
+del /q as*
+del /q s19os9
+ 

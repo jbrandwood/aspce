@@ -20,7 +20,8 @@
 option list and then exits:  
 
 Usage: [-Options] [-Option with arg] file
-Usage: [-Options] [-Option with arg] outfile file [file ...]
+Usage: [-Options] [-Option with arg] outfile file1 [file2 ...]
+  -h   or NO ARGUMENTS  Show this help list
   -p   Echo commands to stdout (default)
   -n   No echo of commands to stdout
 Alternates to Command Line Input:
@@ -34,12 +35,14 @@ Relocation:
   -g   global symbol=expression
 Map format:
   -m   Map output generated as (out)file[.map]
+  -m1    Linker generated symbols included in (out)file[.map]
   -w   Wide listing format for map file
   -x   Hexidecimal (default)
   -d   Decimal
   -q   Octal
 Output:
   -i   Intel Hex as (out)file[.i--]
+  -i1    Legacy: start address record type set to 1
   -s   Motorola S Record as (out)file[.s--]
   -t   Tandy CoCo Disk BASIC binary as (out)file[.bi-]
   -j   NoICE Debug output as (out)file[.noi]
@@ -65,12 +68,6 @@ End:
      When  ASlink  is  invoked  with multiple filenames the
      first filename is the output filename and the  remain-
      ing  filenames  are  linked  together  into the output
-
-
-THE LINKER                                              PAGE 3-3
-INVOKING ASLINK
-
-
      filename.  
 
 
@@ -96,80 +93,90 @@ started at a system specific prompt:
 
 The linker commands are explained in some more detail:  
 
-     1.  -c        ASlink &gt;&gt; prompt mode.  
-         The  ASlink &gt;&gt;  prompt  mode reads linker commands from
-         stdin.  
+    1.  -h        or NO ARGUMENTS Show this help list 
+        Simply prints the help list on stdout.  
 
-     2.  -f file   Command file mode.  
-         The  command file mode imports linker commands from the
-         specified file (extension must be  .lnk),  imported  -c
-         and  -f  commands  are ignored.  If the directory path,
-         for a file to be linked, is not specified in  the  com-
-         mand  file  then  the  path  defaults  to the .lnk file
-         directory path.  
+    2.  -c        ASlink >> prompt mode.  
+        The  ASlink >>  prompt  mode reads linker commands from
+        stdin.  
 
-     3.  -p/-n     enable/disable echoing commands to stdout.  
+    3.  -f file   Command file mode.  
+        The  command file mode imports linker commands from the
+        specified file (extension must be  .lnk),  imported  -c
+        and  -f  commands  are ignored.  If the directory path,
+        for a file to be linked, is not specified in  the  com-
+        mand  file  then  the  path  defaults  to the .lnk file
+        directory path.  
 
-     4.  -i/-s/-t  Intel  Hex (file.i--), Motorola S (file.s--),
-         or Tandy Color Computer  Disk  Basic  (file.bi-)  image
-         output file.  
+    4.  -p/-n     enable/disable echoing commands to stdout.  
 
-     5.  -o/-v     Specifies      that     subsequent     linked
-         files/libraries will generate object  output  (default)
-         or  suppress  object  output.  (if option -i, -s, or -t
-         was specified) 
+    5.  -i/-s/-t  Intel  Hex (file.i--), Motorola S (file.s--),
+        or Tandy Color Computer  Disk  Basic  (file.bi-)  image
+        output file.  
 
-     6.  -z        Disable Case Sensitivity for Symbols 
+    6.  -i1       Legacy:  start address record type set to 1 
+        Use the type 1 record to indicate the program start ad-
+        dress instead of record type 3.  Record type 1 was used
+        in some older tools.  
 
+    7.  -o/-v     Specifies      that     subsequent     linked
+        files/libraries will generate object  output  (default)
+        or  suppress  object  output.  (if option -i, -s, or -t
+        was specified) 
 
+    8.  -z        Disable Case Sensitivity for Symbols 
 
-THE LINKER                                              PAGE 3-4
-INVOKING ASLINK
+    9.  -m        Generate  a  map  file (file.map).  This file
+        contains a list of the symbols (by area) with  absolute
+        addresses, sizes of linked areas, and other linking in-
+        formation.  
 
+   10.  -m1       Linker    generated   symbols   included   in
+        (out)file[.map] 
+        The linker creates internal symbols for each area (area
+        segment) input during the linking process but  normally
+        suppresses  their  inclusion in the map file.  This op-
+        tion enables their inclusion in the map file.  
 
-     7.  -m        Generate  a  map  file (file.map).  This file
-         contains a list of the symbols (by area) with  absolute
-         addresses, sizes of linked areas, and other linking in-
-         formation.  
+   11.  -w        Specifies  that a wide listing format be used
+        for the map file.  
 
-     8.  -w        Specifies  that a wide listing format be used
-         for the map file.  
+   12.  -xdq      Specifies  the  number radix for the map file
+        (Hexidecimal, Decimal, or Octal).  
 
-     9.  -xdq      Specifies  the  number radix for the map file
-         (Hexidecimal, Decimal, or Octal).  
+   13.  -u        Generate  an  updated listing file (file.rst)
+        derived from the relocated addresses and data from  the
+        linker  and  the hint file (file.hlr) output by the as-
+        sembler.  
 
-    10.  -u        Generate  an  updated listing file (file.rst)
-         derived from the relocated addresses and data from  the
-         linker.  
+   14.  file      File(s)  to  be  linked.  Files may be on the
+        same line as the above options or on a separate line(s)
+        one file per line or multiple files separated by spaces
+        or tabs.  
 
-    11.  file      File(s)  to  be  linked.  Files may be on the
-         same line as the above options or on a separate line(s)
-         one file per line or multiple files separated by spaces
-         or tabs.  
+   15.  -b  area=expression 
+        (one definition per line in a linker command file.) 
+        This  specifies  an area base address where the expres-
+        sion may contain constants and/or defined symbols  from
+        the linked files.  
 
-    12.  -b  area=expression 
-         (one definition per line in a linker command file.) 
-         This  specifies  an area base address where the expres-
-         sion may contain constants and/or defined symbols  from
-         the linked files.  
+   16.  -g  symbol=expression 
+        (one definition per line in a linker command file.) 
+        This  specifies  the value for the symbol where the ex-
+        pression may contain constants and/or  defined  symbols
+        from the linked files.  
 
-    13.  -g  symbol=expression 
-         (one definition per line in a linker command file.) 
-         This  specifies  the value for the symbol where the ex-
-         pression may contain constants and/or  defined  symbols
-         from the linked files.  
+   17.  -k  library directory path 
+        (one definition per line in a linker command file.) 
+        This  specifies one possible path to an object library.
+        More than one path is allowed.  
 
-    14.  -k  library directory path 
-         (one definition per line in a linker command file.) 
-         This  specifies one possible path to an object library.
-         More than one path is allowed.  
+   18.  -l  library file specification 
+        (one definition per line in a linker command file.) 
+        This  specifies a possible library file.  More than one
+        file is allowed.  
 
-    15.  -l  library file specification 
-         (one definition per line in a linker command file.) 
-         This  specifies a possible library file.  More than one
-         file is allowed.  
-
-    16.  -e  or null line, terminates input to the linker.  
+   19.  -e  or null line, terminates input to the linker.  
 
 </PRE></B></H4>
 <H5><A HREF="aslink.htm#Index">  Return to the Linker Index</A></H5>
@@ -268,6 +275,26 @@ completion of the area linking all area  addresses  and  lengths
 have  been determined.  The areas of type PAG are verified to be
 on a 256 byte boundary and that the length does not  exceed  256
 bytes.  Any errors are noted on stderr and in the map file.  
+
+The  linker  also  automatically  generates two symbols for each
+linked program area:  
+
+    'a_<area>'      The starting address of the area.  
+
+    'l_<area>'      The length of the area.  
+
+and two symbols for each area segment:  
+
+    'm_<area>_n'    The boundary modulus of the area segment.  
+
+    's_<area>_n'    The starting address of the area segment.  
+
+The  appended  '_n'  signifies  the area segment number within a
+linked area.  
+
+   These  symbols  are in general only useful diagnostically and
+are not visible externally.  However if the -m1 linker option is
+used these symbols will be output to the map file.  
 
    Next  the  global symbol definitions (-g option), if any, are
 processed.  The symbol definitions have been delayed until  this
@@ -469,17 +496,28 @@ parameters have been set.
 <H4><B><PRE>
 <A NAME = "Area4"></A><FONT COLOR="#FF0000">Area Line</FONT>
 
-        A label size ss flags ff 
+        A label size ss flags ff [bank bb] [bndry mm] 
 
    The  area  line  defines the area label, the size (ss) of the
-area in bytes, and the area flags (ff).  The area flags  specify
-the ABS, REL, CON, OVR, and PAG parameters:  
+area in bytes, the area  flags  (ff),  the  optional  [bank  bb]
+specifies  the  bank  this area is a member of, and the optional
+[bndry mm] which specifies the boundary modulus  for  this  area
+segment.  The area flags specify the ABS, REL, CON, OVR, and PAG
+parameters:  
 
         OVR/CON  (0x04/0x00 i.e.  bit position 2) 
 
         ABS/REL  (0x08/0x00 i.e.  bit position 3) 
 
         PAG      (0x10 i.e.  bit position 4) 
+
+   The  bank label is optional and only specified if the area is
+to be included within a bank.  
+
+   When  this area (area segment) is linked and their is a boun-
+dary modulus specified then the code/data beginning address will
+be  increased to match the boundary modulus.  This will also in-
+crease the area (area segment) size by the same amount.  
 
 </PRE></B></H4>
 <H5><A HREF= #Index> => Section Index</A></H5>
@@ -1140,11 +1178,15 @@ Load Address Field   -  This  field  consists  of the four ascii
                         program  entry  address.
 
 Record Type Field    -  This  field  identifies the record type,
-                        which is either 0 for data records or  1
-                        for  an End of File record.  It consists
-                        of two ascii characters, with  the  high
-                        digit of the record type first, followed
-                        by the low digit of the record type.  
+                        which is either 0 for data, 1 for an End
+                        of  File,  or  3  for  a  start  address
+                        record.   It  consists  of   two   ascii
+                        characters,  with  the high digit of the
+                        record type first, followed by  the  low
+                        digit  of  the record type.  The default
+                        start address record type is 3,  however
+                        the  -i1 option can override the default
+                        and use the type 1 record.  
 
 Data Field           -  This  field consists of the actual data,
                         converted to two ascii characters,  high
@@ -1198,12 +1240,15 @@ Load Address Field   -  This  field  consists  of the four ascii
                         program  entry  address.
 
 Record Type Field    -  This  field  identifies the record type,
-                        which is either 0 for  data  records,  1
-                        for  an  End  of File record, or 4 for a
-                        segment  record.   It  consists  of  two
+                        which is either 0 for data, 1 for an End
+                        of File, 3 for a start address, or 4 for
+                        a segment record.  It  consists  of  two
                         ascii characters, with the high digit of
                         the record type first, followed  by  the
-                        low digit of the record type.  
+                        low  digit  of  the  record  type.   The
+                        default start address record type is  3,
+                        however  the -i1 option can override the
+                        default and use the type 1 record.  
 
 Data Field           -  This  field consists of the actual data,
                         converted to two ascii characters,  high
@@ -1430,6 +1475,6 @@ is the execution address.
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: April 2009</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>

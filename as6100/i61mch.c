@@ -152,7 +152,7 @@ struct mne *mp;
 		clrexpr(&e1);
 		expr(&e1, 0);
 		outchk(HUGE,HUGE);
-		cnt = e1.e_addr * mp->m_valu;
+		cnt = (int) e1.e_addr * mp->m_valu;
 		nc = 1 + ((dot.s_area->a_flag) & A_BYTES);
 		dot.s_addr += (cnt/nc) + (cnt % nc ? 1 : 0);
 		lmode = BLIST;

@@ -212,7 +212,7 @@
 	; Normal Listing Mode Inhibits Listing of Macro Expansion and Binary
 	adda	#1
 
-	; .list (meb) Lists Expansion Binary
+	; .list (meb) Lists Expansion Binary and Location
 	.list	(meb)
 	adda	#2
 

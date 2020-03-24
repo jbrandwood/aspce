@@ -240,7 +240,7 @@ assembler arguments:
 
         where:  f       register file address
                 d       destination select:
-                                (0, -> w), (1 -> f)
+                                (0, -&gt w), (1 -&gt f)
                                 the letters w or f may be used
                                 to select the destination
                 b       bit address in an 8-bit file register
@@ -369,19 +369,19 @@ assembler arguments:
 
         where:  f       register file address
                 d       destination select:
-                                (0, -> w), (1 -> f)
+                                (0, -&gt w), (1 -&gt f)
                                 the letters w or f may be used
                                 to select the destination
                 s       destination select:
-                                (0, -> f and w), (1, -> f)
+                                (0, -&gt f and w), (1, -&gt f)
                                 the letters w or f may be used
                                 to select the destination
                 t       table byte select:
-                                (0, -> lower byte)
-                                (1, -> upper byte)
+                                (0, -&gt lower byte)
+                                (1, -&gt upper byte)
                 i       table pointer control
-                                (0, -> no change)
-                                (1, -> post increment)
+                                (0, -&gt no change)
+                                (1, -&gt post increment)
                 b       bit address of an 8-bit file register
                 p       peripheral register file address
                 k       literal constant
@@ -430,20 +430,20 @@ following assembler arguments:
                 fs      register file source
                 fd      register file destination
                 a       ram access bit
-                                (0, -> ACCESS RAM)
-                                (1, -> RAM BANK)
+                                (0, -&gt ACCESS RAM)
+                                (1, -&gt RAM BANK)
                 d       destination select:
-                                (0, -> w), (1 -> f)
+                                (0, -&gt w), (1 -&gt f)
                                 the letters w or f may be used
                                 to select the destination
                 s       fast call/return mode:
-                                (0, -> SLOW), (1, -> FAST)
+                                (0, -&gt SLOW), (1, -&gt FAST)
                 b       bit address of an 8-bit file register
                 mm      TBLRD and TBLWT suffixs
-                                ('*',  -> no change)
-                                ('*+', -> post-increment)
-                                ('*-', -> post-decrement)
-                                ('+*', -> pre-increment)
+                                ('*',  -&gt no change)
+                                ('*+', -&gt post-increment)
+                                ('*-', -&gt post-decrement)
+                                ('+*', -&gt pre-increment)
                 k       literal constant
                 label   label name
 
@@ -597,6 +597,6 @@ mode argument.
 <B>...  Home Page</B></P>
 </H4>
 
-<H6><P><B>Last Updated: April 2009</B></P></H6>
+<H6><P><B>Last Updated: January 2019</B></P></H6>
 </BODY> 
 </HTML>

@@ -1,0 +1,664 @@
+diff -Naur aspce-511/as6500/r6500.h aspce-hu6280/as6500/r6500.h
+--- aspce-511/as6500/r6500.h	2016-11-19 09:18:00.000000000 -0800
++++ aspce-hu6280/as6500/r6500.h	2016-11-19 16:08:26.000000000 -0800
+@@ -1,7 +1,7 @@
+ /* r6500.h */
+ 
+ /*
+- *  Copyright (C) 1995-2014  Alan R. Baldwin
++ *  Copyright (C) 1995-2016  Alan R. Baldwin
+  *
+  *  This program is free software: you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -31,6 +31,8 @@
+  * Finland
+  * Internet: Marko dot Makela at Helsinki dot Fi
+  * EARN/BitNet: msmakela at finuh
++ *
++ * Hu6280 support added by John Brandwood
+  */
+ 
+ /*)BUILD
+@@ -74,6 +76,7 @@
+ #define	S_R65F11	32
+ #define S_R65C00	33
+ #define	S_R65C02	34
++#define	S_HU6280	35
+ 
+ /*
+  * Addressing types
+@@ -113,15 +116,32 @@
+ /*
+  * 65C00/21 and 6529 Extensions
+  */
+-#define	S_BRA2	72
++#define S_BRA2	72
+ #define S_INH2	73
+-#define	S_INH3	74
++#define S_INH3	74
+ 
+ /*
+  * 65C02, 65C102, and 65C112 Extensions
+  */
+ #define S_STZ	75
+-#define	S_TB	76
++#define S_TB	76
++
++/*
++ * Hu6280 Extensions
++ */
++#define S_INH4	77
++#define S_BRA3	78
++#define S_BNKIMM	79
++#define S_BNKINH	80
++#define S_TXX	81
++#define S_TST	82
++
++/*
++ * Location of zero page addressing (it isn't always at $00xx)
++ */
++
++extern	int		zp_mode;
++extern	a_uint	zp_addr;
+ 
+ /*
+  * machine dependent functions
+diff -Naur aspce-511/as6500/r65adr.c aspce-hu6280/as6500/r65adr.c
+--- aspce-511/as6500/r65adr.c	2016-11-19 09:18:00.000000000 -0800
++++ aspce-hu6280/as6500/r65adr.c	2016-11-19 16:08:26.000000000 -0800
+@@ -1,7 +1,7 @@
+ /* r65adr.c */
+ 
+ /*
+- *  Copyright (C) 1995-2014  Alan R. Baldwin
++ *  Copyright (C) 1995-2016  Alan R. Baldwin
+  *
+  *  This program is free software: you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -31,6 +31,8 @@
+  * Finland
+  * Internet: Marko dot Makela at Helsinki dot Fi
+  * EARN/BitNet: msmakela at finuh
++ *
++ * Hu6280 support added by John Brandwood
+  */
+ 
+ #include "asxxxx.h"
+@@ -105,7 +107,7 @@
+ 				case S_X:
+ 					if ((!esp->e_flag)
+ 					    && (esp->e_base.e_ap==NULL)
+-						&& !(esp->e_addr & ~0xFF)) {
++					    && ((esp->e_addr & ~0xFF) == zp_addr)) {
+ 						esp->e_mode = S_DINDX;
+ 					} else {
+ 						esp->e_mode = S_INDX;
+@@ -114,7 +116,7 @@
+ 				case S_Y:
+ 					if ((!esp->e_flag)
+ 					    && (esp->e_base.e_ap==NULL)
+-						&& !(esp->e_addr & ~0xFF)) {
++					    && ((esp->e_addr & ~0xFF) == zp_addr)) {
+ 						esp->e_mode = S_DINDY;
+ 					} else {
+ 						esp->e_mode = S_INDY;
+@@ -126,8 +128,8 @@
+ 				}
+ 			    } else {
+ 				if ((!esp->e_flag)
+-					&& (esp->e_base.e_ap==NULL)
+-					&& !(esp->e_addr & ~0xFF)) {
++				    && (esp->e_base.e_ap==NULL)
++				    && ((esp->e_addr & ~0xFF) == zp_addr)) {
+ 					esp->e_mode = S_DIR;
+ 				} else {
+ 					esp->e_mode = S_EXT;
+diff -Naur aspce-511/as6500/r65mch.c aspce-hu6280/as6500/r65mch.c
+--- aspce-511/as6500/r65mch.c	2016-11-19 09:18:00.000000000 -0800
++++ aspce-hu6280/as6500/r65mch.c	2016-11-19 16:08:26.000000000 -0800
+@@ -1,7 +1,7 @@
+ /* r65mch.c */
+ 
+ /*
+- *  Copyright (C) 1995-2015  Alan R. Baldwin
++ *  Copyright (C) 1995-2016  Alan R. Baldwin
+  *
+  *  This program is free software: you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -31,18 +31,28 @@
+  * Finland
+  * Internet: Marko dot Makela at Helsinki dot Fi
+  * EARN/BitNet: msmakela at finuh
++ *
++ * Hu6280 support added by John Brandwood
+  */
+ 
+ #include "asxxxx.h"
+ #include "r6500.h"
+ 
+-char *cpu  = "Rockwell 6502/6510/65C02";
++char *cpu  = "Rockwell 6502/6510/65C02 & Hu6280";
+ char *dsft = "asm";
+ 
+ int r6500;
+ int r65f11;
+ int r65c00;
+ int r65c02;
++int hu6280;
++
++/*
++ * Location of direct page addressing (it isn't always at $00xx)
++ */
++
++int    zp_mode;
++a_uint zp_addr;
+ 
+ /*
+  * Opcode Cycle Definitions
+@@ -54,6 +64,7 @@
+ #define	OPCY_65F11	((char) (0xFC))
+ #define	OPCY_65C00	((char) (0xFB))
+ #define	OPCY_65C02	((char) (0xFA))
++#define	OPCY_HU6280	((char) (0xF9))
+ 
+ /*	OPCY_NONE	((char) (0x80))	*/
+ /*	OPCY_MASK	((char) (0x7F))	*/
+@@ -148,6 +159,33 @@
+ /*E0*/   2, 7,UN,UN, 3, 4, 5, 5, 2, 3, 2,UN, 4, 5, 6, 7,
+ /*F0*/   4, 7, 6,UN,UN, 5, 6, 5, 2, 6, 4,UN,UN, 6, 7, 7
+ };
++
++/* N.B. The block transfer instructions take 17-cycles plus 6-per-byte. */
++
++#define TX UN /* Block Transfer */
++
++static char hu6280pg1[256] = {
++/*--*--* 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
++/*--*--* -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  - */
++/*00*/   8, 7, 3, 4, 6, 4, 6, 7, 3, 2, 2,UN, 7, 5, 7, 6,
++/*10*/   4, 7, 7, 4, 6, 4, 6, 7, 2, 5, 2,UN, 7, 5, 7, 6,
++/*20*/   7, 7, 3, 4, 4, 4, 6, 7, 4, 2, 2,UN, 5, 5, 7, 6,
++/*30*/   4, 7, 7,UN, 4, 7, 7, 7, 2, 5, 2,UN, 5, 5, 7, 6,
++/*40*/   7, 7, 3, 4, 8, 4, 6, 7, 3, 2, 2,UN, 4, 5, 7, 6,
++/*50*/   4, 7, 7, 5, 3, 4, 6, 7, 2, 5, 3,UN,UN, 5, 7, 6,
++/*60*/   7, 7, 2,UN, 4, 4, 6, 7, 4, 2, 2,UN, 7, 5, 7, 6,
++/*70*/   4, 7, 7,TX, 4, 4, 6, 7, 2, 5, 4,UN, 7, 5, 7, 6,
++/*80*/   4, 7, 2, 7, 4, 4, 4, 7, 2, 2, 2,UN, 5, 5, 5, 6,
++/*90*/   4, 7, 7, 8, 4, 4, 4, 7, 2, 5, 2,UN, 5, 5, 5, 6,
++/*A0*/   2, 7, 2, 7, 4, 4, 4, 7, 2, 2, 2,UN, 5, 5, 5, 6,
++/*B0*/   4, 7, 7, 8, 4, 7, 4, 7, 2, 5, 2,UN, 5, 5, 5, 6,
++/*C0*/   2, 7, 2,TX, 4, 4, 6, 7, 2, 2, 2,UN, 5, 5, 7, 6,
++/*D0*/   4, 7, 7,TX, 3, 4, 6, 7, 2, 5, 3,UN,UN, 5, 7, 6,
++/*E0*/   2, 7,UN,TX, 4, 4, 6, 7, 2, 2, 2,UN, 5, 5, 7, 6,
++/*F0*/   4, 7, 7,TX, 2, 4, 6, 7, 2, 5, 4,UN,UN, 5, 7, 6
++};
++
++#undef TX
+ 				         
+ /*
+  * Process a machine op.
+@@ -157,7 +195,7 @@
+ struct mne *mp;
+ {
+ 	int op, t1;
+-	struct expr e1,e2;
++	struct expr e1,e2,e3;
+ 	struct area *espa;
+ 	char id[NCPS];
+ 	int c, v1, v2;
+@@ -173,7 +211,7 @@
+ 		if (more()) {
+ 			expr(&e1, 0);
+ 			if (e1.e_flag == 0 && e1.e_base.e_ap == NULL) {
+-				if (e1.e_addr) {
++				if ((e1.e_addr & ~0xFF) != zp_addr) {
+ 					err('b');
+ 				}
+ 			}
+@@ -200,6 +238,9 @@
+ 		r65f11 = 0;
+ 		r65c00 = 0;
+ 		r65c02 = 0;
++		hu6280 = 0;
++		zp_mode = R_PAG0;
++		zp_addr = 0x0000;
+ 		break;
+ 
+ 	case S_R65F11:
+@@ -207,6 +248,9 @@
+ 		r65f11 = 1;
+ 		r65c00 = 0;
+ 		r65c02 = 0;
++		hu6280 = 0;
++		zp_mode = R_PAG0;
++		zp_addr = 0x0000;
+ 		break;
+ 
+ 	case S_R65C00:
+@@ -214,6 +258,9 @@
+ 		r65f11 = 1;
+ 		r65c00 = 1;
+ 		r65c02 = 0;
++		hu6280 = 0;
++		zp_mode = R_PAG0;
++		zp_addr = 0x0000;
+ 		break;
+ 
+ 	case S_R65C02:
+@@ -221,6 +268,27 @@
+ 		r65f11 = 1;
+ 		r65c00 = 1;
+ 		r65c02 = 1;
++		hu6280 = 0;
++		zp_mode = R_PAG0;
++		zp_addr = 0x0000;
++		break;
++
++	case S_HU6280:
++		opcycles = OPCY_HU6280;
++		r65f11 = 1;
++		r65c00 = 1;
++		r65c02 = 1;
++		hu6280 = 1;
++		zp_mode = R_PAGN;
++		zp_addr = 0x2000;
++		break;
++
++	case S_INH4:
++		if (!hu6280) {
++			err('o');
++			break;
++		}
++		outab(op);
+ 		break;
+ 
+ 	case S_INH3:
+@@ -239,6 +307,12 @@
+ 		outab(op);
+ 		break;
+ 
++	case S_BRA3:
++		if (!hu6280) {
++			err('o');
++			break;
++		}
++
+ 	case S_BRA2:
+ 		if (!r65c00) {
+ 			err('o');
+@@ -307,11 +381,11 @@
+ 		switch (t1) {
+ 		case S_IPREX:
+ 			outab(op + 0x01);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_DIR:
+ 			outab(op + 0x05);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_IMMED:
+ 			outab(op + 0x09);
+@@ -325,11 +399,11 @@
+ 			break;
+ 		case S_IPSTY:
+ 			outab(op + 0x11);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_DINDX:
+ 			outab(op + 0x15);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_DINDY:
+ 		case S_INDY:
+@@ -345,7 +419,7 @@
+ 				switch(t1) {
+ 				case S_IND:
+ 					outab(op + 0x12);
+-					outrb(&e1, R_PAG0);
++					outrb(&e1, zp_mode);
+ 					break;
+ 				default:
+ 					outab(op + 0x05);
+@@ -367,7 +441,7 @@
+ 		switch (t1) {
+ 		case S_DIR:
+ 			outab(op + 0x06);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op + 0x0E);
+@@ -389,7 +463,7 @@
+ 			break;
+ 		case S_DINDX:
+ 			outab(op + 0x16);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_INDX:
+ 			outab(op + 0x1E);
+@@ -408,7 +482,7 @@
+ 		switch (t1) {
+ 		case S_DIR:
+ 			outab(op + 0x04);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op + 0x0C);
+@@ -419,7 +493,7 @@
+ 				switch(t1) {
+ 				case S_DINDX:
+ 					outab(op + 0x14);
+-					outrb(&e1, R_PAG0);
++					outrb(&e1, zp_mode);
+ 					break;
+ 				case S_INDX:
+ 					outab(op + 0x1C);
+@@ -449,7 +523,7 @@
+ 		switch (t1) {
+ 		case S_DIR:
+ 			outab(op + 0x04);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op+0x0C);
+@@ -478,7 +552,7 @@
+ 			break;
+ 		case S_DIR:
+ 			outab(op + 0x06);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op + 0x0E);
+@@ -486,11 +560,13 @@
+ 			break;
+ 		case S_DINDY:
+ 			outab(op + 0x16);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_INDY:
+ 			outab(op + 0x1E);
+ 			outrw(&e1, 0);
++			if (op == 0x80)
++				aerr();
+ 			break;
+ 		default:
+ 			outab(op + 0x06);
+@@ -511,7 +587,7 @@
+ 			break;
+ 		case S_DIR:
+ 			outab(op + 0x04);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op + 0x0C);
+@@ -519,11 +595,13 @@
+ 			break;
+ 		case S_DINDX:
+ 			outab(op + 0x14);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_INDX:
+ 			outab(op + 0x1C);
+ 			outrw(&e1, 0);
++			if (op == 0x80)
++				aerr();
+ 			break;
+ 		default:
+ 			outab(op + 0x04);
+@@ -544,7 +622,7 @@
+ 		comma(1);
+ 		expr(&e2, 0);
+ 		outab(op);
+-		outrb(&e1, R_PAG0);
++		outrb(&e1, zp_mode);
+ 		if (mchpcr(&e2)) {
+ 			v2 = (int) (e2.e_addr - dot.s_addr - 1);
+ 			if ((v2 < -128) || (v2 > 127))
+@@ -564,7 +642,7 @@
+ 		}
+ 		t1 = addr(&e1);
+ 		outab(op);
+-		outrb(&e1, R_PAG0);
++		outrb(&e1, zp_mode);
+ 		if (t1 != S_DIR && t1 != S_EXT)
+ 			aerr();
+ 		break;
+@@ -577,11 +655,11 @@
+ 		switch (addr(&e1)) {
+ 		case S_DIR:
+ 			outab(op + 0x04);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_DINDX:
+ 			outab(op + 0x14);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op + 0x3C);
+@@ -607,7 +685,7 @@
+ 		switch (addr(&e1)) {
+ 		case S_DIR:
+ 			outab(op + 0x04);
+-			outrb(&e1, R_PAG0);
++			outrb(&e1, zp_mode);
+ 			break;
+ 		case S_EXT:
+ 			outab(op+0x0C);
+@@ -621,6 +699,103 @@
+ 		}
+ 		break;
+ 
++	case S_BNKIMM:
++		if (!hu6280) {
++			err('o');
++			break;
++		}
++		switch (addr(&e1)) {
++		case S_IMMED:
++			outab(op);
++			outrb(&e1, 0);
++			break;
++		default:
++			outab(op);
++			outab(0);
++			aerr();
++			break;
++		}
++		break;
++
++	case S_BNKINH:
++		if (!hu6280) {
++			err('o');
++			break;
++		}
++		outab(op);
++		outab(1 << (mp->m_id[3] - '0'));
++		break;
++
++	case S_TXX:
++		if (!hu6280) {
++			err('o');
++			break;
++		}
++		clrexpr(&e3);
++		expr(&e1, 0);
++		if (e1.e_mode != 0 && comma(1)) {
++			expr(&e2, 0);
++			if (e2.e_mode != 0 && comma(1)) {
++				expr(&e3, 0);
++			}
++		}
++		if (e1.e_mode == 0 || e2.e_mode == 0 || e3.e_mode == 0) {
++			outab(op);
++			outaw(0);
++			outaw(0);
++			outaw(0);
++			qerr();
++			break;
++		}
++		outab(op);
++		outrw(&e1, 0);
++		outrw(&e2, 0);
++		outrw(&e3, 0);
++		break;
++
++	case S_TST:
++		if (!hu6280) {
++			err('o');
++			break;
++		}
++		if (addr(&e1) != S_IMMED) {
++			outab(0x83);
++			outab(0);
++			outab(0);
++			aerr();
++			break;
++		}
++		comma(1);
++		switch (addr(&e2)) {
++		case S_DIR:
++			outab(0x83);
++			outrb(&e1, R_USGN);
++			outrb(&e2, zp_mode);
++			break;
++		case S_DINDX:
++			outab(0xA3);
++			outrb(&e1, R_USGN);
++			outrb(&e2, zp_mode);
++			break;
++		case S_EXT:
++			outab(0x93);
++			outrb(&e1, R_USGN);
++			outrw(&e2, 0);
++			break;
++		case S_INDX:
++			outab(0xB3);
++			outrb(&e1, R_USGN);
++			outrw(&e2, 0);
++			break;
++		default:
++			outab(0x83);
++			outab(0);
++			outab(0);
++			aerr();
++			break;
++		}
++		break;
++
+ 	default:
+ 		opcycles = OPCY_ERR;
+ 		err('o');
+@@ -630,6 +805,9 @@
+ 		/*
+ 		 * Donot Change Selection Order
+ 		 */
++		if (hu6280) {
++			opcycles = hu6280pg1[cb[0] & 0xFF];
++		} else
+ 		if (r65c02) {
+ 			opcycles = c02pg1[cb[0] & 0xFF];
+ 		} else
+@@ -685,4 +863,7 @@
+ 	r65f11 = 0;
+ 	r65c00 = 0;
+ 	r65c02 = 0;
++	hu6280 = 0;
++	zp_mode = R_PAG0;
++	zp_addr = 0x0000;
+ }
+diff -Naur aspce-511/as6500/r65pst.c aspce-hu6280/as6500/r65pst.c
+--- aspce-511/as6500/r65pst.c	2016-11-19 09:18:00.000000000 -0800
++++ aspce-hu6280/as6500/r65pst.c	2016-11-19 16:08:26.000000000 -0800
+@@ -1,7 +1,7 @@
+ /* r65pst.c */
+ 
+ /*
+- *  Copyright (C) 1995-2014  Alan R. Baldwin
++ *  Copyright (C) 1995-2016  Alan R. Baldwin
+  *
+  *  This program is free software: you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -31,6 +31,8 @@
+  * Finland
+  * Internet: Marko dot Makela at Helsinki dot Fi
+  * EARN/BitNet: msmakela at finuh
++ *
++ * Hu6280 support added by John Brandwood
+  */
+ 
+ #include "asxxxx.h"
+@@ -114,6 +116,7 @@
+     {	NULL,	".r65f11",	S_R65F11,	0,	0	},
+     {	NULL,	".r65c00",	S_R65C00,	0,	0	},
+     {	NULL,	".r65c02",	S_R65C02,	0,	0	},
++    {	NULL,	".hu6280",	S_HU6280,	0,	0	},
+ 
+ 	/* system */
+ 
+@@ -361,5 +364,52 @@
+     {	NULL,	"stz",		S_STZ,		0,	0x60	},
+ 
+     {	NULL,	"trb",		S_TB,		0,	0x10	},
+-    {	NULL,	"tsb",		S_TB,		S_EOL,	0x00	}
++    {	NULL,	"tsb",		S_TB,		0,	0x00	},
++
++	/* Additional Hu6280 series Instructions */
++
++    {	NULL,	"sxy",		S_INH4,		0,	0x02	},
++    {	NULL,	"sax",		S_INH4,		0,	0x22	},
++    {	NULL,	"say",		S_INH4,		0,	0x42	},
++    {	NULL,	"cla",		S_INH4,		0,	0x62	},
++    {	NULL,	"clx",		S_INH4,		0,	0x82	},
++    {	NULL,	"cly",		S_INH4,		0,	0xC2	},
++    {	NULL,	"csl",		S_INH4,		0,	0x54	},
++    {	NULL,	"csh",		S_INH4,		0,	0xD4	},
++    {	NULL,	"set",		S_INH4,		0,	0xF4	},
++
++    {	NULL,	"bsr",		S_BRA3,		0,	0x44	},
++
++    {	NULL,	"st0",		S_IMMED,	0,	0x03	},
++    {	NULL,	"st1",		S_IMMED,	0,	0x13	},
++    {	NULL,	"st2",		S_IMMED,	0,	0x23	},
++
++    {	NULL,	"tma",		S_BNKIMM,	0,	0x43	},
++    {	NULL,	"tam",		S_BNKIMM,	0,	0x53	},
++
++    {	NULL,	"tma0",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma1",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma2",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma3",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma4",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma5",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma6",		S_BNKINH,	0,	0x43	},
++    {	NULL,	"tma7",		S_BNKINH,	0,	0x43	},
++
++    {	NULL,	"tam0",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam1",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam2",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam3",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam4",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam5",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam6",		S_BNKINH,	0,	0x53	},
++    {	NULL,	"tam7",		S_BNKINH,	0,	0x53	},
++
++    {	NULL,	"tii",		S_TXX,		0,	0x73	},
++    {	NULL,	"tdd",		S_TXX,		0,	0xC3	},
++    {	NULL,	"tin",		S_TXX,		0,	0xD3	},
++    {	NULL,	"tia",		S_TXX,		0,	0xE3	},
++    {	NULL,	"tai",		S_TXX,		0,	0xF3	},
++
++    {	NULL,	"tst",		S_TST,		S_EOL,	0x83	}
+ };

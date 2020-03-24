@@ -1,7 +1,7 @@
 /* i48mch.c */
 
 /*
- *  Copyright (C) 2009-2014  Alan R. Baldwin
+ *  Copyright (C) 2009-2018  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -738,7 +738,7 @@ struct mne *mp;
 		t1 = addr(&e1);
 		v1 = (int) e1.e_addr;
 		switch (v1) {
-		case 0x85: /* AN0 */
+		case 0x85: /* AN0 */	/* 8022 Only */
 		case 0x95: /* AN1 */
 			if (mchtyp & ~X_8022) {
 				opcycles = OPCY_ERR;
@@ -747,11 +747,18 @@ struct mne *mp;
 			}
 			outab(v1);
 			break;
-		case 0xC5: /* RB0 */
-		case 0xD5: /* RB1 */
-		case 0xE5: /* MB0 */
+		case 0xE5: /* MB0 */	/* 8048 Only */
 		case 0xF5: /* MB1 */
 			if (mchtyp & ~X_8048) {
+				opcycles = OPCY_ERR;
+				err('o');
+				break;
+			}
+			outab(v1);
+			break;
+		case 0xC5: /* RB0 */	/* 8041 or 8048 */
+		case 0xD5: /* RB1 */
+			if (mchtyp & ~(X_8041 | X_8048)) {
 				opcycles = OPCY_ERR;
 				err('o');
 				break;

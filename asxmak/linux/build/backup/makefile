@@ -3,7 +3,7 @@
 #		LINUX Version
 #		=============
 #
-#   8 October 2014			Created for LINUX     / make /
+#   30 November 2018			Created for LINUX     / make /
 #
 ######################################################################
 
@@ -25,10 +25,14 @@ all:	as1802		\
 	as6812		\
 	as6816		\
 	as740		\
+	as78k0		\
 	as78k0s		\
+	as8008		\
+	as8008s		\
 	as8048		\
 	as8051		\
 	as8085		\
+	as8x300		\
 	as8xcxxx	\
 	asavr		\
 	asez80		\
@@ -46,6 +50,7 @@ all:	as1802		\
 	asst8		\
 	asz8		\
 	asz80		\
+	asz280		\
 	aslink		\
 	asxscn		\
 	asxcnv		\
@@ -72,10 +77,14 @@ clean:
 	rm -f $(SRC6812)*.o
 	rm -f $(SRC6816)*.o
 	rm -f $(SRC740)*.o
+	rm -f $(SRC78K0)*.o
 	rm -f $(SRC78K0S)*.o
+	rm -f $(SRC8008)*.o
+	rm -f $(SRC8008S)*.o
 	rm -f $(SRC8048)*.o
 	rm -f $(SRC8051)*.o
 	rm -f $(SRC8085)*.o
+	rm -f $(SRC8X300)*.o
 	rm -f $(SRC8XCXXX)*.o
 	rm -f $(SRCAVR)*.o
 	rm -f $(SRCCHECK)*.o
@@ -93,6 +102,7 @@ clean:
 	rm -f $(SRCST8)*.o
 	rm -f $(SRCZ8)*.o
 	rm -f $(SRCZ80)*.o
+	rm -f $(SRCZ280)*.o
 	rm -f as1802
 	rm -f as2650
 	rm -f as430
@@ -109,10 +119,14 @@ clean:
 	rm -f as6812
 	rm -f as6816
 	rm -f as740
+	rm -f as78k0
 	rm -f as78k0s
+	rm -f as8008
+	rm -f as8008s
 	rm -f as8048
 	rm -f as8051
 	rm -f as8085
+	rm -f as8x300
 	rm -f as8xcxxx
 	rm -f asavr
 	rm -f asez80
@@ -130,6 +144,7 @@ clean:
 	rm -f asst8
 	rm -f asz8
 	rm -f asz80
+	rm -f asz280
 	rm -f aslink
 	rm -f asxscn
 	rm -f asxcnv
@@ -157,10 +172,14 @@ prep:
 	rm -f $(SRC6812)*.o
 	rm -f $(SRC6816)*.o
 	rm -f $(SRC740)*.o
+	rm -f $(SRC78K0)*.o
 	rm -f $(SRC78K0S)*.o
+	rm -f $(SRC8008)*.o
+	rm -f $(SRC8008S)*.o
 	rm -f $(SRC8048)*.o
 	rm -f $(SRC8051)*.o
 	rm -f $(SRC8085)*.o
+	rm -f $(SRC8X300)*.o
 	rm -f $(SRC8XCXXX)*.o
 	rm -f $(SRCAVR)*.o
 	rm -f $(SRCCHECK)*.o
@@ -178,6 +197,7 @@ prep:
 	rm -f $(SRCST8)*.o
 	rm -f $(SRCZ8)*.o
 	rm -f $(SRCZ80)*.o
+	rm -f $(SRCZ280)*.o
 	rm -f as1802
 	rm -f as2650
 	rm -f as430
@@ -194,10 +214,14 @@ prep:
 	rm -f as6812
 	rm -f as6816
 	rm -f as740
+	rm -f as78k0
 	rm -f as78k0s
+	rm -f as8008
+	rm -f as8008s
 	rm -f as8048
 	rm -f as8051
 	rm -f as8085
+	rm -f as8x300
 	rm -f as8xcxxx
 	rm -f asavr
 	rm -f asez80
@@ -215,6 +239,7 @@ prep:
 	rm -f asst8
 	rm -f asz8
 	rm -f asz80
+	rm -f asz280
 	rm -f aslink
 	rm -f asxscn
 	rm -f asxcnv
@@ -231,6 +256,7 @@ LDFLAGS=	-Wall
 #  Set ASXBAS relative to this make file.
 
 ASXBAS:=	../../../
+ASXEXE:=	../
 
 SRCASX:=	$(ASXBAS)asxxsrc/
 SRCLNK:=	$(ASXBAS)linksrc/
@@ -254,10 +280,14 @@ SRC6811=	$(ASXBAS)as6811/
 SRC6812=	$(ASXBAS)as6812/
 SRC6816=	$(ASXBAS)as6816/
 SRC740=		$(ASXBAS)as740/
+SRC78K0=	$(ASXBAS)as78k0/
 SRC78K0S=	$(ASXBAS)as78k0s/
+SRC8008=	$(ASXBAS)as8008/
+SRC8008S=	$(ASXBAS)as8008s/
 SRC8048=	$(ASXBAS)as8048/
 SRC8051=	$(ASXBAS)as8051/
 SRC8085=	$(ASXBAS)as8085/
+SRC8X300=	$(ASXBAS)as8x300/
 SRC8XCXXX=	$(ASXBAS)as8xcxxx/
 SRCAVR=		$(ASXBAS)asavr/
 SRCCHECK=	$(ASXBAS)ascheck/
@@ -275,6 +305,7 @@ SRCST7=		$(ASXBAS)asst7/
 SRCST8=		$(ASXBAS)asst8/
 SRCZ8=		$(ASXBAS)asz8/
 SRCZ80=		$(ASXBAS)asz80/
+SRCZ280=	$(ASXBAS)asz280/
 
 .SUFFIXES:	.c .o
 
@@ -562,6 +593,23 @@ as740:	$(ASXXSRC) $(AS740SRC)
 
 
 ####################################################################
+# AS78K0
+####################################################################
+
+AS78K0 =	r78k0adr.o r78k0mch.o r78k0pst.o
+
+AS78K0SRC =	$(addprefix $(SRC78K0),$(AS78K0))
+
+$(AS78K0SRC):	$(SRCMISC)alloc.h $(SRCASX)asxxxx.h $(SRC78K0)r78k0.h
+
+as78k0:		$(ASXXSRC) $(AS78K0SRC)
+	$(LD) $(LDFLAGS) $(ASXXSRC) $(AS78K0SRC) -o as78k0
+	cp as78k0 $(DSTEXE)as78k0
+	strip $(DSTEXE)as78k0
+	chmod 755 $(DSTEXE)as78k0
+
+
+####################################################################
 # AS78K0S
 ####################################################################
 
@@ -576,6 +624,40 @@ as78k0s:	$(ASXXSRC) $(AS78KSRC)
 	cp as78k0s $(DSTEXE)as78k0s
 	strip $(DSTEXE)as78k0s
 	chmod 755 $(DSTEXE)as78k0s
+
+
+####################################################################
+# AS8008
+####################################################################
+
+AS8008 =	i08adr.o i08mch.o i08pst.o
+
+AS8008SRC =	$(addprefix $(SRC8008),$(AS8008))
+
+$(AS8008SRC):	$(SRCMISC)alloc.h $(SRCASX)asxxxx.h $(SRC8008)i08.h
+
+as8008:	$(ASXXSRC) $(AS8008SRC)
+	$(LD) $(LDFLAGS) $(ASXXSRC) $(AS8008SRC) -o as8008
+	cp as8008 $(DSTEXE)as8008
+	strip $(DSTEXE)as8008
+	chmod 755 $(DSTEXE)as8008
+
+
+####################################################################
+# AS8008S
+####################################################################
+
+AS8008S =	i08sadr.o i08smch.o i08spst.o
+
+AS8008SSRC =	$(addprefix $(SRC8008S),$(AS8008S))
+
+$(AS8008SSRC):	$(SRCMISC)alloc.h $(SRCASX)asxxxx.h $(SRC8008S)i08s.h
+
+as8008s:	$(ASXXSRC) $(AS8008SSRC)
+	$(LD) $(LDFLAGS) $(ASXXSRC) $(AS8008SSRC) -o as8008s
+	cp as8008s $(DSTEXE)as8008s
+	strip $(DSTEXE)as8008s
+	chmod 755 $(DSTEXE)as8008s
 
 
 ####################################################################
@@ -627,6 +709,23 @@ as8085:	$(ASXXSRC) $(AS8085SRC)
 	cp as8085 $(DSTEXE)as8085
 	strip $(DSTEXE)as8085
 	chmod 755 $(DSTEXE)as8085
+
+
+####################################################################
+# AS8X300
+####################################################################
+
+AS8X300 =	s8xadr.o s8xmch.o s8xpst.o
+
+AS8X300SRC =	$(addprefix $(SRC8X300),$(AS8X300))
+
+$(AS8X300SRC):	$(SRCMISC)alloc.h $(SRCASX)asxxxx.h $(SRC8X300)s8x.h
+
+as8x300:	$(ASXXSRC) $(AS8X300SRC)
+	$(LD) $(LDFLAGS) $(ASXXSRC) $(AS8X300SRC) -o as8x300
+	cp as8x300 $(DSTEXE)as8x300
+	strip $(DSTEXE)as8x300
+	chmod 755 $(DSTEXE)as8x300
 
 
 ####################################################################
@@ -916,6 +1015,26 @@ asz80:	$(ASXXSRC) $(ASZ80SRC)
 	cp asz80 $(DSTEXE)asz80
 	strip $(DSTEXE)asz80
 	chmod 755 $(DSTEXE)asz80
+
+
+####################################################################
+# ASZ280
+####################################################################
+
+ASZ280 =		z280adr.o z280mch.o z280pst.o
+
+ASZ280SRC =	$(addprefix $(SRCZ280),$(ASZ280))
+
+$(ASZ280SRC):	$(SRCMISC)alloc.h $(SRCASX)asxxxx.h	\
+		$(SRCZ280)z280def.h	\
+		$(SRCZ280)z280ops.h	\
+		$(SRCZ280)z280opcy.h
+
+asz280:	$(ASXXSRC) $(ASZ280SRC)
+	$(LD) $(LDFLAGS) $(ASXXSRC) $(ASZ280SRC) -o asz280
+	cp asz280 $(DSTEXE)asz280
+	strip $(DSTEXE)asz280
+	chmod 755 $(DSTEXE)asz280
 
 
 ####################################################################

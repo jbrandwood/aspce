@@ -63,7 +63,19 @@ rm -f ../../../asxtst/asmt2blo.lst
 ../exe/asxscn ../../../asxtst/asmt2blo.lst
 
 rm -f ../../../asxtst/asmt2blo.lst
+../exe/as78k0 -glacxff ../../../asxtst/asmt2blo.asm
+../exe/asxscn ../../../asxtst/asmt2blo.lst
+
+rm -f ../../../asxtst/asmt2blo.lst
 ../exe/as78k0s -glacxff ../../../asxtst/asmt2blo.asm
+../exe/asxscn ../../../asxtst/asmt2blo.lst
+
+rm -f ../../../asxtst/asmt2blo.lst
+../exe/as8008 -glacxff ../../../asxtst/asmt2blo.asm
+../exe/asxscn ../../../asxtst/asmt2blo.lst
+
+rm -f ../../../asxtst/asmt2blo.lst
+../exe/as8008s -glacxff ../../../asxtst/asmt2blo.asm
 ../exe/asxscn ../../../asxtst/asmt2blo.lst
 
 rm -f ../../../asxtst/asmt2bhi.lst
@@ -77,6 +89,10 @@ rm -f ../../../asxtst/asmt2bhi.lst
 rm -f ../../../asxtst/asmt2blo.lst
 ../exe/as8085 -glacxff ../../../asxtst/asmt2blo.asm
 ../exe/asxscn ../../../asxtst/asmt2blo.lst
+
+rm -f ../../../asxtst/asmt2bhi.lst
+../exe/as8x300 -glacxff ../../../asxtst/asmt2bhi.asm
+../exe/asxscn ../../../asxtst/asmt2bhi.lst
 
 rm -f ../../../asxtst/asmt2bhi.lst
 ../exe/as8xcxxx -glacxff ../../../asxtst/asmt2bhi.asm
@@ -289,14 +305,41 @@ rm -f ../../../as740/t740s.lst
 ../exe/as740 -glacxff ../../../as740/t740s.asm
 ../exe/asxscn ../../../as740/t740s.lst
 
+rm -f ../../../as78k0/t78k0.rel
+rm -f ../../../as78k0/t78k0.lst
+rm -f ../../../as78k0/t78k0.hlr
+rm -f ../../../as78k0/t78k0.rst
+../exe/as78k0 -gloacxff ../../../as78k0/t78k0.asm
+../exe/asxscn ../../../as78k0/t78k0.lst
+../exe/aslink -nf ../../../as78k0/t78k0.lnk
+../exe/asxscn -i ../../../as78k0/t78k0.rst
+
 rm -f ../../../as78k0s/t78k0s.rel
 rm -f ../../../as78k0s/t78k0s.lst
 rm -f ../../../as78k0s/t78k0s.hlr
 rm -f ../../../as78k0s/t78k0s.rst
 ../exe/as78k0s -gloacxff ../../../as78k0s/t78k0s.asm
 ../exe/asxscn ../../../as78k0s/t78k0s.lst
-../exe/aslink -nxu -g exsfr=0 -g exsaddr=0 -g exbyt=0 -g exaddr16=0 -g ext=0 -g exbit=0 -g exind=0 ../../../as78k0s/t78k0s.rel
+../exe/aslink -nf ../../../as78k0s/t78k0s.lnk
 ../exe/asxscn -i ../../../as78k0s/t78k0s.rst
+
+rm -f ../../../as8008/t08.rel
+rm -f ../../../as8008/t08.lst
+rm -f ../../../as8008/t08.hlr
+rm -f ../../../as8008/t08.rst
+../exe/as8008 -gloacxff ../../../as8008/t08.asm
+../exe/asxscn ../../../as8008/t08.lst
+../exe/aslink -nxu -g ival=0 -g rval=0 -g port=0 -g jcval=0 ../../../as8008/t08.rel
+../exe/asxscn -i ../../../as8008/t08.rst
+
+rm -f ../../../as8008s/t08s.rel
+rm -f ../../../as8008s/t08s.lst
+rm -f ../../../as8008s/t08s.hlr
+rm -f ../../../as8008s/t08s.rst
+../exe/as8008s -gloacxff ../../../as8008s/t08s.asm
+../exe/asxscn ../../../as8008s/t08s.lst
+../exe/aslink -nxu -g ival=0 -g rval=0 -g port=0 -g jcval=0 ../../../as8008s/t08s.rel
+../exe/asxscn -i ../../../as8008s/t08s.rst
 
 rm -f ../../../as8048/t8048s.rel
 rm -f ../../../as8048/t8048s.lst
@@ -314,6 +357,15 @@ rm -f ../../../as8051/t8051.lst
 rm -f ../../../as8085/t8085.lst
 ../exe/as8085 -glacxff ../../../as8085/t8085.asm
 ../exe/asxscn ../../../as8085/t8085.lst
+
+rm -f ../../../as8x300/ts8x.rel
+rm -f ../../../as8x300/ts8x.lst
+rm -f ../../../as8x300/ts8x.hlr
+rm -f ../../../as8x300/ts8x.rst
+../exe/as8x300 -gloacxff ../../../as8x300/ts8x.asm
+../exe/asxscn ../../../as8x300/ts8x.lst
+../exe/aslink -u ../../../as8x300/ts8x.rel
+../exe/asxscn -i ../../../as8x300/ts8x.rst
 
 rm -f ../../../as8xcxxx/t80c390.lst
 ../exe/as8xcxxx -glacxff ../../../as8xcxxx/t80c390.asm
@@ -467,4 +519,28 @@ rm -f ../../../asz80/tz80.lst
 ../exe/asz80 -glacxff ../../../asz80/tz80.asm
 ../exe/asxscn ../../../asz80/tz80.lst
 
+rm -f ../../../asz280/*.rel
+rm -f ../../../asz280/*.lst
+rm -f ../../../asz280/*.hlr
+rm -f ../../../asz280/*.rst
+../exe/asz280 -lbcoxff -p ../../../asz280/tzx_CL ../../../asz280/asz_CL ../../../asz280/tz280x 
+../exe/asxscn ../../../asz280/tzx_CL.lst
+
+../exe/asz280 -lbcoxff -p ../../../asz280/tzx_CR ../../../asz280/asz_CR ../../../asz280/tz280x 
+../exe/aslink -nf ../../../asz280/tzx_CR
+../exe/asxscn ../../../asz280/tzx_CR.rst
+
+../exe/asz280 -lbcoxff -p ../../../asz280/tzx_XL ../../../asz280/asz_XL ../../../asz280/tz280x 
+../exe/asxscn ../../../asz280/tzx_XL.lst
+
+../exe/asz280 -lbcoxff -p ../../../asz280/tzx_XR ../../../asz280/asz_XR ../../../asz280/tz280x 
+../exe/aslink -nf ../../../asz280/tzx_XR
+../exe/asxscn ../../../asz280/tzx_XR.rst
+
+../exe/asz280 -lbcoxff -p ../../../asz280/tzx_EXL ../../../asz280/asz_EXL ../../../asz280/tz280x 
+../exe/asxscn ../../../asz280/tzx_EXL.lst
+
+../exe/asz280 -lbcoxff -p ../../../asz280/tzx_EXR ../../../asz280/asz_EXR ../../../asz280/tz280x 
+../exe/aslink -nf ../../../asz280/tzx_EXR
+../exe/asxscn ../../../asz280/tzx_EXR.rst
 

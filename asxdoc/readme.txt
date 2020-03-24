@@ -1,4 +1,4 @@
-ASxxxx and ASlink V5.10 October 2014
+ASxxxx and ASlink V5.20 January 2017
 
    The  ASxxxx  assemblers are a series of microprocessor assem-
 blers written in the C programming  language.   This  collection
@@ -21,14 +21,14 @@ several microprocessor monitors (ASSIST05  for the  6805, MONDEB
 and  ASSIST09  for the 6809, and  BUFFALO 2.5  for the 6811) are
 included  as  working examples  of use of these assemblers.  
 
-asxv5p10.zip	ASxxxx and ASlink V5.10 Zipped
+asxv5p20.zip	ASxxxx and ASlink V5.20 Zipped
 
 	MS-DOS:
-	Windows:	unzip asxv5p10.zip
-			pkunzip -d asxv5p10.zip
+	Windows:	unzip asxv5p20.zip
+			pkunzip -d asxv5p20.zip
 			unzips and restores directory structure
 
-	Linux:		unzip -L -a asxv5p10.zip
+	Linux:		unzip -L -a asxv5p20.zip
 			unzips to lower-case names and converts ascii
 			files to \n from \r\n form.
 
@@ -90,7 +90,7 @@ The Make or Build Exectutable directories are:
 
 
 /*
- *  Copyright (C) 1989-2014  Alan R. Baldwin
+ *  Copyright (C) 1989-2017  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

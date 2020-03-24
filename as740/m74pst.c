@@ -1,7 +1,7 @@
 /* m74pst.c */
 
 /*
- *  Copyright (C) 2005-2014  Alan R. Baldwin
+ *  Copyright (C) 2005-2018  Alan R. Baldwin
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ struct	bank	bank[2] = {
  * Coding Areas
  */
 struct	area	area[2] = {
-    {	NULL,		&bank[0],	"_CODE",	0,	0,	0,	A_2BYTE|A_BNK|A_CSEG	},
+    {	NULL,		&bank[0],	"_CODE",	0,	0,	0,	A_1BYTE|A_BNK|A_CSEG	},
     {	&area[0],	&bank[1],	"_DATA",	1,	0,	0,	A_1BYTE|A_BNK|A_DSEG	}
 };
 
@@ -105,7 +105,7 @@ struct	mne	mne[] = {
 
 	/* machine */
 
-    {	NULL,	"CSEG",		S_ATYP,		0,	A_CSEG|A_2BYTE	},
+    {	NULL,	"CSEG",		S_ATYP,		0,	A_CSEG|A_1BYTE	},
     {	NULL,	"DSEG",		S_ATYP,		0,	A_DSEG|A_1BYTE	},
 
     {	NULL,	".setdp",	S_SDP,		0,	0	},

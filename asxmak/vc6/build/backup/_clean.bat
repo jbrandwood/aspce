@@ -138,6 +138,14 @@ del *.ncb
 rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
+cd as78k0
+del *.log
+del *.opt
+del *.plg
+del *.ncb
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
 cd as78k0s
 del *.log
 del *.opt
@@ -146,6 +154,20 @@ del *.ncb
 rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
+cd as8008
+del *.log
+del *.opt
+del *.plg
+del *.ncb
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd as8008s
+del *.log
+del *.opt
+del *.plg
+del *.ncb
+rmdir /s /q .\debug
+rmdir /s /q .\release
 cd as8048
 del *.log
 del *.opt
@@ -170,6 +192,13 @@ del *.ncb
 rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
+cd as8x300
+del *.log
+del *.opt
+del *.plg
+del *.ncb
+rmdir /s /q .\debug
+rmdir /s /q .\release
 cd as8xcxxx
 del *.log
 del *.opt
@@ -306,6 +335,14 @@ del *.ncb
 rmdir /s /q .\debug
 rmdir /s /q .\release
 cd ..
+cd asz280
+del *.log
+del *.opt
+del *.plg
+del *.ncb
+rmdir /s /q .\debug
+rmdir /s /q .\release
+cd ..
 cd aslink
 del *.log
 del *.opt
@@ -366,11 +403,11 @@ echo all       ==        'blank'
 echo --------  --------  --------  --------  --------  --------
 echo as1802    as2650    as430     as6100    as61860   as6500
 echo as6800    as6801    as6804    as6805    as6808    as6809
-echo as6811    as6812    as6816    as740     as78k0s   as8048
-echo as8051    as8085    as8xcxxx  asavr     ascheck   asez80
-echo asf2mc8   asf8      asgb      ash8      asm8c     aspic
-echo asrab     asscmp    asst6     asst7     asst8     asz8
-echo asz80     
+echo as6811    as6812    as6816    as740     as78k0    as78k0s
+echo as8008    as8008s   as8048    as8051    as8085    as8x300
+echo as8xcxxx  asavr     ascheck   asez80    asf2mc8   asf8
+echo asgb      ash8      asm8c     aspic     asrab     asscmp
+echo asst6     asst7     asst8     asz8      asz80     asz280
 echo --------  --------  --------  --------  --------  --------
 echo aslink    asxcnv    asxscn    s19os9
 echo --------  --------  --------  --------  --------  --------

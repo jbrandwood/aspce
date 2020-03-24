@@ -269,71 +269,49 @@ list()
 	 * ON ERROR override listing
 	 */
 	if ((ep != eb) && (listing & LIST_ERR)) {
-		listing = LIST_ASM | LIST_ME;
-	}
-
-	switch (lmode) {
-	case SLIST:
-	case ALIST:
-	case BLIST:
-		if (asmc->objtyp == T_MACRO) {
-			if (listing & LIST_ME) {
-				listing |= LIST_ASM;
-			} else {
-				if ((ep != eb) && (listing & LIST_ERR)) {
-					; /* Use listing mode in effect. */
+		listing |= LIST_ASM;
+	} else {
+		/*
+		 * In a MACRO test for LIST_ME and LIST_MEB overrides
+		 */
+		switch (lmode) {
+		case SLIST:
+		case ALIST:
+		case BLIST:
+		case CLIST:
+		case ELIST:
+			if (asmc->objtyp == T_MACRO) {
+				/* Priority 1
+				 * LIST_ME - Enables listing
+				 */
+				if (listing & LIST_ME) {
+					;
+				} else
+				/* Priority 2
+				 * LIST_MEB - Location and Binary only listing
+				 */
+				if (listing & LIST_MEB) {
+					listing &= ~LIST_ASM;
+					listing |= (LIST_LOC | LIST_BIN);
 				} else {
+				/* Priority 3
+				 * Default - Listing inhibited
+				 */
+					listing = LIST_NONE;
 					if ((cp - cb) || (rflag > 1)) {
 						listhlr(HLR_NLST, lmode, (int) (cp - cb));
 					}
 					return;
 				}
 			}
-		}
-		break;
-
-	case ELIST:
-		if (asmc->objtyp == T_MACRO) {
-			if (listing & LIST_ME) {
-				listing |= LIST_ASM;
-			} else {
-				if ((ep != eb) && (listing & LIST_ERR)) {
-					; /* Use listing mode in effect. */
-				} else {
-					if ((cp - cb) || (rflag > 1)) {
-						listhlr(HLR_NLST, lmode, (int) (cp - cb));
-					}
-					return;
-				}
+			break;
+	
+		default:
+			if ((cp - cb) || (rflag > 1)) {
+				listhlr(HLR_NLST, lmode, (int) (cp - cb));
 			}
+			return;
 		}
-		break;
-
-	case CLIST:
-		if (asmc->objtyp == T_MACRO) {
-			if (listing & LIST_ME) {
-				listing |= LIST_ASM;
-			} else
-			if ((listing & LIST_MEB) && ((int) (cp - cb))) {
-				listing = LIST_BIN;
-			} else {
-				if ((ep != eb) && (listing & LIST_ERR)) {
-					; /* Use listing mode in effect. */
-				} else {
-					if ((cp - cb) || (rflag > 1)) {
-						listhlr(HLR_NLST, lmode, (int) (cp - cb));
-					}
-					return;
-				}
-			}
-		}
-		break;
-
-	default:
-		if ((cp - cb) || (rflag > 1)) {
-			listhlr(HLR_NLST, lmode, (int) (cp - cb));
-		}
-		return;
 	}
 
 	/*
@@ -1039,7 +1017,7 @@ int flag;
 			fprintf(fp, "%s\n", np);
 			fprintf(fp, "%s\n", tb);
 			fprintf(fp, "%s\n\n", stb);
-			if (fp == lfp) {
+			if ((fp == lfp) && (asmc != NULL)) {
 				for (lop=1; lop<6; lop++) {
 					listhlr(LIST_SRC, SLIST, 0);
 				}

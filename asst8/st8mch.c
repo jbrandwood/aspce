@@ -196,8 +196,7 @@ struct mne *mp;
 		comma(1);
 		t1 = addr(&e1);
 		v1 = rcode;
-		if ((t2 == S_REG) && (v2 == SP) &&
-		    (t1 == S_IMM)) {
+		if ((t2 == S_REG) && (v2 == SP) && (t1 == S_IMM)) {
 			if (op == 0x00) {	/* SUB  SP,# */
 				outab(0x52);
 				outrb(&e1, R_USGN);
@@ -231,7 +230,7 @@ struct mne *mp;
 			outab(op | 0xA0);
 			outrb(&e1, R_NORM);
 			break;
-		case S_IXO:	/* (offset,R), R = X, Y, SP */
+		case S_IX:	/* (offset,R), R = X, Y, SP */
 			if (ls_mode(&e1)) {
 		case S_IXE:	/* (offset,R).e, R = X, Y, SP */
 				if (t1 == S_IXE) { aerr(); }
@@ -257,7 +256,7 @@ struct mne *mp;
 				}
 			}
 			break;
-		case S_IX:	/* (R), R = X, Y */
+		case S_IXR:	/* (R), R = X, Y */
 			switch(v1) {
 			case Y:		outab(0x90);
 			case X:		outab(op | 0xF0);	break;
@@ -325,12 +324,38 @@ struct mne *mp;
 		comma(1);
 		t1 = addr(&e1);
 		v1 = rcode;
+		/*
+		 * Added due to disagreement and
+		 * contradictions in the 2005 and
+		 * 2011 ST8 mmanuals.  Generated
+		 * code is identical to ADD SP,#byte .
+		 */
+		if ((t2 == S_REG) && (v2 == SP) && (t1 == S_IMM)) {
+			if (op == 0x0D) {	/* SUBW  SP,# */
+				outab(0x52);
+				outrb(&e1, R_USGN);
+				break;
+			} else
+			if (op == 0x0C) {	/* ADDW  SP,# */
+				outab(0x5B);
+				outrb(&e1, R_USGN);
+				break;
+			}
+		}
 		if ((t2 != S_REG) || ((v2 != X) && (v2 != Y))) {
 			opcy_aerr();
 			break;
 		}
 		switch(t1) {
 		case S_LONG:	/*  arg */
+			outab(0x72);
+			switch(v2) {
+			case X:		outab(0xBB);	break;
+			case Y:		outab(0xB9);	break;
+			default:			break;
+			}
+			outrw(&e1, R_USGN);
+			break;
 		case S_SHORT:	/* *arg */
 			outab(0x72);
 			switch(v2) {
@@ -338,6 +363,7 @@ struct mne *mp;
 			case Y:		outab(0xB9);	break;
 			default:			break;
 			}
+			outab(0x00);
 			outrb(&e1, R_USGN);
 			break;
 		case S_IMM:	/* #arg */
@@ -353,7 +379,7 @@ struct mne *mp;
 		case S_IXW:	/* (offset,R).w, R = SP */
 			aerr();
 		case S_IXB:	/* (offset,R).b, R = SP */
-		case S_IXO:	/* (offset,R), R = SP */
+		case S_IX:	/* (offset,R), R = SP */
 			if (v1 == SP) {
 				outab(0x72);
 				switch(v2) {
@@ -382,12 +408,38 @@ struct mne *mp;
 		comma(1);
 		t1 = addr(&e1);
 		v1 = rcode;
+		/*
+		 * Added due to disagreement and
+		 * contradictions in the 2005 and
+		 * 2011 ST8 mmanuals.  Generated
+		 * code is identical to SUB SP,#byte .
+		 */
+		if ((t2 == S_REG) && (v2 == SP) && (t1 == S_IMM)) {
+			if (op == 0x0D) {	/* SUBW  SP,# */
+				outab(0x52);
+				outrb(&e1, R_USGN);
+				break;
+			} else
+			if (op == 0x0C) {	/* ADDW  SP,# */
+				outab(0x5B);
+				outrb(&e1, R_USGN);
+				break;
+			}
+		}
 		if ((t2 != S_REG) || ((v2 != X) && (v2 != Y))) {
 			opcy_aerr();
 			break;
 		}
 		switch(t1) {
 		case S_LONG:	/*  arg */
+			outab(0x72);
+			switch(v2) {
+			case X:		outab(0xB0);	break;
+			case Y:		outab(0xB2);	break;
+			default:			break;
+			}
+			outrw(&e1, R_USGN);
+			break;
 		case S_SHORT:	/* *arg */
 			outab(0x72);
 			switch(v2) {
@@ -395,6 +447,7 @@ struct mne *mp;
 			case Y:		outab(0xB2);	break;
 			default:			break;
 			}
+			outab(0x00);
 			outrb(&e1, R_USGN);
 			break;
 		case S_IMM:	/* #arg */
@@ -410,7 +463,7 @@ struct mne *mp;
 		case S_IXW:	/* (offset,R).w, R = SP */
 			aerr();
 		case S_IXB:	/* (offset,R).b, R = SP */
-		case S_IXO:	/* (offset,R), R = SP */
+		case S_IX:	/* (offset,R), R = SP */
 			if (v1 == SP) {
 				outab(0x72);
 				switch(v2) {
@@ -478,13 +531,13 @@ struct mne *mp;
 			aerr();
 		case S_IXW:	/* (offset,R).w, R = X, Y, SP */
 		case S_IXB:	/* (offset,R).b, R = X, Y, SP */
-		case S_IXO:	/* (offset,R), R = X, Y, SP */
+		case S_IX:	/* (offset,R), R = X, Y, SP */
 			if ((v2 == Y) && (v1 == SP)) {
 				opcy_aerr();
 				break;
 			}
 			switch(t1) {
-			case S_IXO:	/* (offset,R), R = X, Y, SP */
+			case S_IX:	/* (offset,R), R = X, Y, SP */
 				if (ls_mode(&e1)) {
 			case S_IXE:	/* (offset,R).e, R = X, Y, SP */
 					if (t1 == S_IXE) { aerr(); }
@@ -511,7 +564,7 @@ struct mne *mp;
 				}
 			}
 			break;
-		case S_IX:	/* (R), R = X, Y */
+		case S_IXR:	/* (R), R = X, Y */
 			switch(v1) {
 			case Y:		outab(0x90);
 			case X:		outab(op | 0xF0);	break;
@@ -612,7 +665,7 @@ struct mne *mp;
 		case S_IMM:	/* #arg */
 			opcy_aerr();
 			break;
-		case S_IXO:	/* (offset,R), R = X, Y, SP */
+		case S_IX:	/* (offset,R), R = X, Y, SP */
 			if (ls_mode(&e1)) {
 		case S_IXE:	/* (offset,R).e, R = X, Y, SP */
 				if (t1 == S_IXE) { aerr(); }
@@ -643,7 +696,7 @@ struct mne *mp;
 				}
 			}
 			break;
-		case S_IX:	/* (R), R = X, Y */
+		case S_IXR:	/* (R), R = X, Y */
 			switch(v1) {
 			case Y:		outab(0x90);
 			case X:		outab(op | 0x70);	break;
@@ -778,7 +831,7 @@ struct mne *mp;
 			default:				break;
 			}
 			break;
-		case S_IXO:	/* (offset,R), R = X, Y, SP */
+		case S_IX:	/* (offset,R), R = X, Y, SP */
 			if (ls_mode(&e1)) {
 		case S_IXE:	/* (offset,R).e, R = X, Y, SP */
 				if (t1 == S_IXE) { aerr(); }
@@ -817,7 +870,7 @@ struct mne *mp;
 				}
 			}
 			break;
-		case S_IX:	/* (R), R = X, Y */
+		case S_IXR:	/* (R), R = X, Y */
 			switch(v1) {
 			case Y:		outab(0x90);
 			case X:		outab(op | 0xF0);	break;
@@ -920,7 +973,7 @@ struct mne *mp;
 		case S_IXW:	/* (offset,R).w, R = X, Y */
 			aerr();
 		case S_IXE:	/* (offset,R).e, R = X, Y */
-		case S_IXO:	/* (offset,R), R = X, Y */
+		case S_IX:	/* (offset,R), R = X, Y */
 			switch(op) {
 			case 0x0C:	op = 0xAF;	break;
 			case 0x0D:	op = 0xA7;	break;
@@ -1020,7 +1073,7 @@ struct mne *mp;
 			case S_IMM:	/* #arg */
 				outab(0xAE);
 				outrw(&e2, R_NORM);	break;
-			case S_IXO:	/* (offset,R), R = X, SP */
+			case S_IX:	/* (offset,R), R = X, SP */
 				if (ls_mode(&e2)) {
 			case S_IXE:	/* (offset,R).e, R = X, SP */
 					if (t2 == S_IXE) { aerr(); }
@@ -1044,7 +1097,7 @@ struct mne *mp;
 					}
 				}
 				break;
-			case S_IX:	/* (R), R = X */
+			case S_IXR:	/* (R), R = X */
 				switch(v2) {
 				case X:		outab(0xFE);	break;
 				default:	opcy_aerr();	break;
@@ -1109,7 +1162,7 @@ struct mne *mp;
 				outab(0x90);
 				outab(0xAE);
 				outrw(&e2, R_NORM);	break;
-			case S_IXO:	/* (offset,R), R = Y, SP */
+			case S_IX:	/* (offset,R), R = Y, SP */
 				if (ls_mode(&e2)) {
 			case S_IXE:	/* (offset,R).e, R = Y, SP */
 					if (t2 == S_IXE) { aerr(); }
@@ -1135,7 +1188,7 @@ struct mne *mp;
 					}
 				}
 				break;
-			case S_IX:	/* (R), R = Y */
+			case S_IXR:	/* (R), R = Y */
 				switch(v2) {
 				case Y:	        outab(0x90);
 						outab(0xFE);	break;
@@ -1197,7 +1250,7 @@ struct mne *mp;
 					outab(0xBF);
 					outrb(&e1, R_USGN);	break;
 				}
-			case S_IXO:	/* (offset,R), R = Y, SP */
+			case S_IX:	/* (offset,R), R = Y, SP */
 				if (ls_mode(&e1)) {
 			case S_IXE:	/* (offset,R).e, R = Y, SP */
 					if (t1 == S_IXE) { aerr(); }
@@ -1223,7 +1276,7 @@ struct mne *mp;
 					}
 				}
 				break;
-			case S_IX:	/* (R), R = Y */
+			case S_IXR:	/* (R), R = Y */
 				switch(v1) {
 				case Y:	        outab(0x90);
 						outab(0xFF);	break;
@@ -1286,7 +1339,7 @@ struct mne *mp;
 					outab(0xBF);
 					outrb(&e1, R_USGN);	break;
 				}
-			case S_IXO:	/* (offset,R), R = X, SP */
+			case S_IX:	/* (offset,R), R = X, SP */
 				if (ls_mode(&e1)) {
 			case S_IXE:	/* (offset,R).e, R = X, SP */
 					if (t1 == S_IXE) { aerr(); }
@@ -1310,7 +1363,7 @@ struct mne *mp;
 					}
 				}
 				break;
-			case S_IX:	/* (R), R = X */
+			case S_IXR:	/* (R), R = X */
 				switch(v1) {
 				case X:		outab(0xFF);	break;
 				default:	opcy_aerr();	break;
@@ -1583,7 +1636,7 @@ struct mne *mp;
 			outab(op | 0xC0);
 			outrw(&e1, R_NORM);
 			break;
-		case S_IXO:	/* (offset,R), R = X, Y */
+		case S_IX:	/* (offset,R), R = X, Y */
 			if (ls_mode(&e1)) {
 		case S_IXE:	/* (offset,R).e, R = X, Y */
 				if (t1 == S_IXE) { aerr(); }
@@ -1604,7 +1657,7 @@ struct mne *mp;
 				}
 			}
 			break;
-		case S_IX:	/* (R), R = X, Y */
+		case S_IXR:	/* (R), R = X, Y */
 			switch(v1) {
 			case Y:		outab(0x90);
 			case X:		outab(op | 0xF0);	break;
@@ -1760,6 +1813,17 @@ struct mne *mp;
 		}
 		outrbm(&e2, R_BITS, op);
 		outrw(&e1, R_USGN);
+		break;
+
+	case S_INT:
+		t1 = addr(&e1);
+		if ((t1 != S_SHORT) && (t1 != S_LONG) &&
+		    (t1 != S_EXT) && (t1 != S_IMM)) {
+			opcy_aerr();
+			break;
+		}
+		outab(op);
+		outr3b(&e1, R_NORM);
 		break;
 
 	case S_INH72:

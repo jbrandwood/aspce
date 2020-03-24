@@ -70,7 +70,7 @@
 #define	S_EXT		0x04
 /*	Illegal		0x03, 0x05, 0x06, 0x07	*/
 
-#define	S_IXO		0x08
+#define	S_IX		0x08
 #define	S_IXB		0x09
 #define	S_IXW		0x0A
 #define	S_IXE		0x0C
@@ -89,7 +89,7 @@
 /*	Illegal		0x1B, 0x1D, 0x1E, 0x1F	*/
 
 #define	S_IMM		0x20
-#define	S_IX		0x21
+#define	S_IXR		0x22
 
 /*
  * Instruction types
@@ -122,7 +122,7 @@
 #define	S_INH72		85
 #define	S_MLDV		86
 #define	S_DIVW		87
-
+#define	S_INT		88
 /*
  * Extended Addressing Modes
  */
